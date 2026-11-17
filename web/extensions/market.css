@@ -1,0 +1,18 @@
+#plugin-market { box-sizing:border-box; width:min(740px,94vw); max-height:84vh; padding:0; border:1px solid var(--line,#aaa); border-radius:10px; color:var(--text,#222); background:var(--panel,var(--bg-2,#fff)); box-shadow:0 12px 48px #0003; font:14px/1.55 "Microsoft YaHei UI",sans-serif }
+#plugin-market::backdrop {background:#0007}
+#plugin-market header,.pm-toolbar,.pm-card,.pm-actions,.pm-source {display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#plugin-market header {justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+#plugin-market h2,#plugin-market h3,#plugin-market p {margin:0;color:inherit;letter-spacing:0}
+#plugin-market h2 {font-size:19px} #plugin-market h3{font-size:15px}
+.pm-toolbar,.pm-source {margin:14px 20px} .pm-toolbar input,.pm-source input {min-width:100px;flex:1}
+#plugin-market button,#plugin-market input {font:inherit;border:1px solid var(--line,#aaa);border-radius:5px;background:var(--bg-2,#fff);color:inherit;padding:5px 9px}
+#plugin-market button {cursor:pointer} #plugin-market button[aria-pressed=true],#plugin-market .pm-install {background:var(--text,#222);color:var(--bg-2,#fff)}
+.pm-list {padding:0 20px 16px} .pm-card {padding:12px 0;border-bottom:1px solid var(--line);justify-content:space-between} .pm-info{min-width:150px;flex:1;overflow-wrap:anywhere}
+.pm-info p,.pm-meta,.pm-status {color:var(--text-dim,#666);font-size:12px}.pm-status{display:block;margin:0 20px 10px;overflow-wrap:anywhere}
+#plugin-market details {margin:0 20px 12px} #plugin-market summary{cursor:pointer}
+#plugin-market details .pm-source {margin:8px 0}.pm-source input[type=file]{max-width:100%}
+#pm-home-tools {display:flex;gap:6px;flex-wrap:wrap;padding:10px 0}
+html.pm-compact :is(#mk-list .catalog-card,.row-item,#version-cards .card){padding-block:5px!important}
+html.pm-reading .view :is(.row-title,.row-sub,.hint-line,.side-title,.catalog-info p,.field label,.hero-meta,.card-title){font-size:16px!important;line-height:1.6!important}
+html.pm-still *,html.pm-still *::before,html.pm-still *::after {animation-duration:0s!important;transition-duration:0s!important;scroll-behavior:auto!important}
+html.pm-quiet #view-home .pm-notices{display:none!important}

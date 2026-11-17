@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TPCL · 我的 Minecraft 启动器</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1620'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='18' font-weight='700' fill='%231fd3ff' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/style.css" />
+<link rel="stylesheet" href="/cyber.css" />
+<link rel="stylesheet" href="/pcl.css" />
+    <link rel="stylesheet" href="/theme-dark.css" />
+<link rel="stylesheet" href="/queue.css" />
+<link rel="stylesheet" href="/tpcl-ui.css" />
+  <!-- tpcl-plugin-market-v1 -->
+  <link rel="stylesheet" href="/extensions/market.css">
+  <script type="module" src="/extensions/market.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark" aria-label="TPCL">T<span>+</span></div>
+      <div class="brand-text"><b>TPCL</b><span>Minecraft</span></div>
+    </div>
+    <nav class="nav" aria-label="主要页面">
+      <button class="nav-btn active" data-view="home" title="启动" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <span>启动</span>
+      </button>
+      <button class="nav-btn" data-view="download" title="下载">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>
+        <span>下载</span>
+      </button>
+      <button class="nav-btn" data-view="content" title="内容">
+        <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
+        <span>内容</span>
+      </button>
+      <button class="nav-btn" data-view="worlds" title="存档">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16v13H4zM4 7l2-3h5l2 3"/><path d="M9 12h6"/></svg>
+        <span>存档</span>
+      </button>
+      <button class="nav-btn" data-view="servers" title="服务器">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18v5H3zM3 13h18v5H3z"/><circle cx="7" cy="8.5" r="1"/><circle cx="7" cy="15.5" r="1"/></svg>
+        <span>服务器</span>
+      </button>
+      <button class="nav-btn" data-view="skins" title="皮肤">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="M8.5 10h.01M15.5 10h.01"/><path d="M9 15c1.8 1.2 4.2 1.2 6 0"/></svg>
+        <span>皮肤</span>
+      </button>
+      <button class="nav-btn" data-view="settings" title="设置">
+        <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4z"/></svg>
+        <span>设置</span>
+      </button>
+      <button class="nav-btn" data-view="more" title="更多">
+        <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg>
+        <span>更多</span>
+      </button>
+    </nav>
+    <div class="rail-bottom">
+      <button class="nav-btn theme-btn" id="btn-theme" title="切换浅色 / 深色">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.1 5.1l1.6 1.6M17.3 17.3l1.6 1.6M18.9 5.1l-1.6 1.6M6.7 17.3l-1.6 1.6"/></svg>
+        <span>主题</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb" id="crumb">启动</div>
+      <div class="top-actions">
+        <button class="acc-chip" id="acc-chip" title="账号">
+        <span class="acc-head" id="acc-head">👤</span>
+        <span id="acc-name">Steve</span><em id="acc-type">离线</em>
+      </button>
+        <span class="pill" id="pill-java">Java -</span>
+        <span class="pill" id="pill-dir">-</span>
+        <button class="icon-btn" id="btn-sfx" title="音效">🔊</button>
+        <button class="icon-btn" id="btn-folder" title="打开游戏目录">📁</button>
+        <button class="icon-btn" id="btn-refresh" title="刷新">⟳</button>
+      </div>
+    </header>
+
+    <!-- ========== 启动 ========== -->
+    <section class="view active" id="view-home">
+      <div class="home-grid">
+        <div class="home-main">
+          <div class="section-head">
+            <h2>版本列表</h2>
+            <div class="section-tools">
+              <input class="search" id="search-version" placeholder="搜索版本…" />
+            </div>
+          </div>
+          <div class="cards" id="version-cards"></div>
+
+          <div class="card side-card">
+            <div class="side-title">公告</div>
+            <ul class="notice-list"><li><b>下载队列</b><span>连续添加任务，重启后可继续未完成的安装。</span></li><li><b>资源目录</b><span>Modrinth 与 CurseForge，分类浏览并选择兼容版本。</span></li><li><b id="notice-ver">TPCL</b><span>遇到问题时，前往下载页查看自动保存的错误报告。</span></li></ul>
+          </div>
+
+          <div class="log-wrap">
+            <div class="log-head">
+              <span>启动器日志</span>
+              <div class="log-tools">
+                <span class="log-filter" id="log-filter">
+                  <button class="mini-btn on" data-lf="all">全部</button>
+                  <button class="mini-btn" data-lf="warn">警告+</button>
+                  <button class="mini-btn" data-lf="error">仅错误</button>
+                </span>
+                <span class="log-counts" id="log-counts"></span>
+                <button class="mini-btn" id="btn-crash">崩溃分析</button>
+                <button class="mini-btn" id="btn-export-log">导出日志</button>
+                <button class="mini-btn" id="btn-copy-log">复制日志</button>
+                <button class="mini-btn" id="btn-clear-log">清空</button>
+                <button class="mini-btn" id="btn-toggle-log">收起</button>
+              </div>
+            </div>
+            <pre class="log" id="log"></pre>
+          </div>
+        </div>
+
+        <aside class="home-side">
+          <div class="card side-card" id="side-account">
+            <div class="side-title">账号</div>
+            <div class="side-acc">
+              <span class="side-acc-head" id="side-acc-head">👤</span>
+              <div class="side-acc-info">
+                <b id="side-acc-name">Steve</b>
+                <span id="side-acc-type">离线登录</span>
+              </div>
+            </div>
+            <button class="side-btn" id="btn-side-account">切换 / 登录账号</button>
+          </div>
+
+          <div class="hero card">
+            <div class="hero-left">
+              <div class="hero-label">当前版本</div>
+              <div class="hero-name-row">
+                <h1 id="hero-version">未选择版本</h1>
+                <select class="ver-pick" id="ver-pick" title="切换版本">
+                  <option value="">切换版本…</option>
+                </select>
+              </div>
+              <div class="hero-meta" id="hero-meta">请选择已安装的游戏版本</div>
+            </div>
+            <div class="hero-right">
+              <button class="ghost-btn fix-btn" id="hero-fix" hidden>一键修复</button>
+              <button class="launch-btn" id="btn-launch">
+                <span class="launch-icon">▶</span>
+                <span class="launch-text">启动游戏</span>
+              </button>
+              <button class="ghost-btn" id="btn-stop" hidden>结束进程</button>
+              <span class="hint-line" id="run-note" hidden></span>
+            </div>
+          </div>
+
+          <div class="card side-card">
+            <div class="side-title">快捷入口</div>
+            <div class="side-grid">
+              <button class="side-btn" id="btn-side-download">下载版本</button>
+              <button class="side-btn" id="btn-side-content">管理内容</button>
+              <button class="side-btn" id="btn-side-worlds">存档备份</button>
+              <button class="side-btn" id="btn-side-settings">启动器设置</button>
+            </div>
+          </div>
+
+          <div class="side-foot" id="side-foot">TPCL · 我的 Minecraft 启动器</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ========== 下载 ========== -->
+    <section class="view" id="view-download">
+      <div class="tabs" id="dl-tabs">
+        <span class="nav-group-title">游戏安装</span>
+        <button class="tab active" data-dl="vanilla">原版</button>
+        <button class="tab" data-dl="forge">Forge</button>
+        <button class="tab" data-dl="neoforge">NeoForge</button>
+        <button class="tab" data-dl="fabric">Fabric</button>
+        <button class="tab" data-dl="quilt">Quilt</button>
+        <button class="tab" data-dl="optifine">OptiFine</button>
+        <span class="nav-group-title">在线资源</span>
+        <button class="tab" data-dl="packs">整合包目录</button>
+        <button class="tab" data-dl="market">模组 / 资源</button>
+        <span class="nav-group-title">工具</span>
+        <button class="tab" data-dl="modpack">导入整合包</button>
+        <button class="mini-btn tabs-action" id="btn-reports">错误报告</button>
+        <button class="mini-btn tabs-action" id="btn-feedback" title="遇到问题？加群反馈">Bug 反馈</button>
+      </div>
+
+      <div class="download-body">
+      <div id="task-panel" class="task-panel" hidden>
+        <div class="task-head">
+          <span class="task-title">下载任务 <em id="task-count">0</em></span>
+            <button class="mini-btn" id="btn-task-clear">清空已完成</button>
+        </div>
+        <div id="task-list"></div>
+      </div>
+
+      <div id="dl-optifine" hidden>
+        <div class="toolbar">
+          <select class="select" id="of-version"></select>
+          <button class="mini-btn accent" id="btn-of-load">获取列表</button>
+          <span class="hint-line" id="of-hint" style="margin-left:auto"></span>
+        </div>
+        <div id="of-list" class="list"></div>
+        <div class="hint-line" id="of-status" style="margin-top:8px">
+          OptiFine 1.13 之后以 mod 形式工作：这里会把它下载进「所选版本」的 mods 目录，只能装到 Forge / NeoForge 版本。
+        </div>
+      </div>
+
+      <div id="dl-vanilla">
+        <div class="toolbar">
+          <input class="search" id="search-remote" placeholder="搜索版本号…" />
+          <div class="chips" id="dl-filter">
+            <button class="chip active" data-vtype="all">全部</button>
+            <button class="chip" data-vtype="release">正式版</button>
+            <button class="chip" data-vtype="snapshot">快照</button>
+            <button class="chip" data-vtype="old">远古版本</button>
+          </div>
+          <span class="spacer"></span>
+          <button class="mini-btn" id="btn-reload-remote">刷新列表</button>
+        </div>
+        <div class="install-status" id="install-status" hidden>
+          <div class="bar"><i id="install-bar"></i></div>
+          <div class="install-text" id="install-text">准备中…</div>
+        </div>
+        <div class="list" id="remote-list"></div>
+      </div>
+
+      <div id="dl-loader" hidden>
+        <div class="toolbar">
+          <span class="dim">游戏版本</span>
+          <select id="ld-mc" class="picker"><option value="">选择版本…</option></select>
+          <input class="search narrow" id="ld-mc-manual" placeholder="手动输入，如 1.20.1" hidden />
+          <span class="spacer"></span>
+        </div>
+        <div id="ld-list" class="ld-list"></div>
+        <div class="install-status" id="ld-status" hidden>
+          <div class="bar"><i id="ld-bar"></i></div>
+          <div class="install-text" id="ld-text">准备中…</div>
+        </div>
+        <div class="hint" id="ld-hint">
+          选好游戏版本后会自动拉取该版本的加载器列表。缺原版会先补原版，缺 Java 会自动下载。
+        </div>
+      </div>
+
+      <div id="dl-modpack" hidden>
+        <div class="toolbar">
+          <input class="search" id="mp-path" placeholder="整合包文件路径，或点右侧选择…" />
+          <button class="mini-btn" id="btn-mp-pick">选择文件</button>
+          <span class="spacer"></span>
+          <button class="mini-btn accent" id="btn-mp-install">导入</button>
+        </div>
+        <div class="mp-drop" id="mp-drop">
+          <b>拖入整合包，或点击选择文件</b>
+          <span>.mrpack / CurseForge 导出 zip / 带 mods 的目录打包；拖入后预览，确认后加入下载队列</span>
+        </div>
+        <div class="install-status" id="mp-status" hidden>
+          <div class="bar"><i id="mp-bar"></i></div>
+          <div class="install-text" id="mp-text">等待中…</div>
+        </div>
+        <div class="hint">
+          支持 Modrinth (.mrpack)、CurseForge 导出包 (.zip) 与常见「.minecraft 目录打包」。
+          导入会新建独立版本目录，不污染现有存档。
+        </div>
+        <div class="list" id="mp-result"></div>
+      </div>
+
+      <div id="dl-market" hidden>
+        <div class="catalog-heading"><div><h2 id="catalog-title">模组与资源</h2></div><button class="mini-btn" id="catalog-configure">下载源设置</button></div><div class="chips" id="mk-src">
+          <button class="chip active" data-mksrc="modrinth">Modrinth</button>
+          <button class="chip" data-mksrc="cf">CurseForge</button>
+        </div>        <div class="toolbar">
+          <select id="mk-type" class="picker">
+            <option value="mod">模组</option>
+            <option value="resourcepack">资源包</option>
+            <option value="shader">光影</option>
+            <option value="modpack">整合包</option>
+          </select>
+          <input class="search" id="mk-query" placeholder="搜索名称，例如 sodium / iris / jei…" />
+          <label class="catalog-match"><input type="checkbox" id="catalog-match" checked />匹配当前游戏</label><span class="dim" id="mk-scope">—</span>
+          <span class="spacer"></span>
+          <select id="mk-sort" class="picker" title="排序方式">
+            <option value="relevance">相关度</option>
+            <option value="downloads" selected>下载量</option>
+            <option value="follows">收藏数</option>
+            <option value="newest">最新发布</option>
+            <option value="updated">最近更新</option>
+          </select>
+          <button class="mini-btn" id="btn-mk-go">搜索</button>
+        </div>
+        <div class="install-status" id="mk-status" hidden>
+          <div class="bar"><i id="mk-bar"></i></div>
+          <div class="install-text" id="mk-text">准备中…</div>
+        </div>
+        <div class="list" id="mk-list"></div>
+        <div class="hint" id="mk-hint">
+          <span id="mk-hint-scope">资源来自 Modrinth 公开接口，按当前选中版本的 Minecraft 版本与加载器过滤。</span>
+          模组装进当前版本的 mods，资源包装进 resourcepacks，光影装进 shaderpacks，整合包会新建独立版本。
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <!-- ========== 内容 ========== -->
+    <section class="view" id="view-content">
+      <div class="content-cats" id="content-tabs">
+        <span class="nav-group-title">版本内容</span>
+        <button class="tab active" data-kind="mods">模组</button>
+        <button class="tab" data-kind="resourcepacks">资源包</button>
+        <button class="tab" data-kind="shaderpacks">光影</button>
+        <button class="tab" data-kind="datapacks">数据包</button>
+        <button class="tab" data-kind="saves">存档</button>
+        <button class="tab" data-kind="shots">截图</button>
+      </div>
+      <div class="content-main">
+        <div class="content-toolbar">
+          <input class="picker content-search" id="content-search" placeholder="搜索文件名 / 模组名 / 作者…" />
+          <span class="log-counts" id="content-hits" hidden></span>
+          <span class="spacer"></span>
+          <button class="mini-btn" id="btn-check-updates">检查更新</button>
+          <button class="mini-btn" id="btn-import-content">导入文件</button>
+          <button class="mini-btn" id="btn-open-content">打开文件夹</button>
+        </div>
+        <div class="list content-grid" id="content-list"></div>
+        <div class="hint-line" id="update-hint" hidden></div>
+      </div>
+    </section>
+
+    <!-- ========== 存档 ========== -->
+    <section class="view" id="view-worlds">
+      <div class="workspace-panel">
+        <h3 class="section-title">游戏存档</h3>
+        <div class="tabs">
+        <span class="tab-static" id="worlds-version">—</span>
+        <span class="spacer"></span>
+        <select class="mini-select" id="worlds-sort" title="排序方式">
+          <option value="mtime">最近修改</option>
+          <option value="name">名称</option>
+          <option value="size">体积</option>
+        </select>
+        <button class="mini-btn" id="btn-backup-all">备份全部</button>
+        <button class="mini-btn" id="btn-open-backups">打开备份目录</button>
+        <button class="mini-btn accent" id="btn-world-import">导入世界…</button>
+        <button class="mini-btn" id="btn-world-import-dir">导入文件夹…</button>
+        <button class="mini-btn" id="btn-worlds-refresh">刷新</button>
+      </div>
+      <div class="list" id="worlds-list"></div>
+      </div>
+      <div class="workspace-panel">
+        <h3 class="section-title">备份文件 <span id="backups-count"></span></h3>
+      <div class="list" id="backups-list"></div>
+
+      </div>
+      <div class="workspace-panel">
+        <h3 class="section-title">云同步（文件夹型）</h3>
+      <div class="tabs">
+        <span class="tab-static">同步目录</span>
+        <input id="sync-dir" class="inline-input" readonly placeholder="未设置（可选 OneDrive / 坚果云 / 局域网共享 / U 盘）" />
+        <button class="mini-btn" id="btn-sync-pick">选择目录</button>
+        <button class="mini-btn accent" id="btn-sync-push">推送全部</button>
+              <button class="mini-btn" id="btn-sync-diff">对比</button>
+              <span class="row-sub" id="sync-diff-note"></span>
+              <div id="sync-diff-list" class="sync-diff-list" hidden></div>
+        <span class="spacer"></span>
+        <button class="mini-btn" id="btn-sync-refresh">刷新</button>
+      </div>
+      <div class="list" id="sync-list"></div>
+      <p class="hint-line">推送会把每个世界打包成 zip 丢进同步目录的 <code>TPCL-Worlds/&lt;版本&gt;/</code>，每个世界只留最近 5 份；拉取前会自动在本地再备份一次，覆盖只影响同名世界。</p>
+      </div>
+    </section>
+
+    <!-- ========== 服务器 ========== -->
+    <section class="view" id="view-servers">
+      <div class="workspace-panel">
+        <h3 class="section-title">服务器列表</h3>
+        <div class="tabs">
+        <input id="sv-host" class="inline-input" placeholder="服务器地址，例如 mc.hypixel.net 或 1.2.3.4:25565" />
+        <input id="sv-name" class="inline-input short" placeholder="备注名（可选）" />
+        <button class="mini-btn accent" id="btn-sv-add">添加并 ping</button>
+        <span class="spacer"></span>
+        <button class="mini-btn" id="btn-sv-export">导出</button>
+        <button class="mini-btn" id="btn-sv-import">导入</button>
+        <button class="mini-btn" id="btn-sv-refresh">全部刷新</button>
+      </div>
+      <div class="list" id="servers-list"></div>
+      <p class="hint-line">支持 SRV 记录（play.xxx.com 这种）。MOTD 里的颜色会按服务器给的样式渲染；favicon 来自服务器本身。</p>
+
+      </div>
+      <div class="workspace-panel">
+        <div class="section-head">
+        <h3>局域网发现</h3>
+        <span class="spacer"></span>
+        <button class="mini-btn" id="btn-lan-refresh">刷新</button>
+      </div>
+      <div class="list" id="lan-list"></div>
+      <p class="hint-line">同一个 WiFi 下别人开了「对局域网开放」，这里会自动出现，点「进服」直接连。只被动监听 MC 的广播，不发任何包。</p>
+      </div>
+    </section>
+
+    <!-- ========== 皮肤 ========== -->
+    <section class="view" id="view-skins">
+      <div class="skin-top">
+        <div class="skin-preview card">
+          <div class="skin-figure">
+            <canvas id="skin-canvas" width="320" height="380" title="拖动可旋转"></canvas>
+            <img id="skin-body" alt="皮肤预览" hidden />
+          </div>
+          <div class="skin-info">
+            <div class="skin-name"><img id="skin-head" alt="" /><span id="skin-account">—</span></div>
+            <div class="skin-sub" id="skin-type">离线账号</div>
+            <div class="skin-acts">
+              <button class="primary-btn" id="btn-skin-pick">选择皮肤文件…</button>
+              <button class="mini-btn" id="btn-skin-upload" disabled>上传到正版账号</button>
+              <button class="mini-btn" id="btn-skin-reset">还原默认皮肤</button>
+              <button class="mini-btn" id="btn-skin-download">下载我的皮肤</button>
+            </div>
+            <div class="skin-file" id="skin-file">未选择文件</div>
+          </div>
+        </div>
+        <div class="skin-side card">
+          <h3>按名字查看别人的皮肤</h3>
+          <div class="tabs">
+            <input id="skin-query" class="inline-input" placeholder="玩家名或 UUID，例如 Notch" />
+            <button class="mini-btn accent" id="btn-skin-lookup">查询</button>
+          </div>
+          <div class="skin-look" id="skin-look">
+            <p class="hint-line">查到的皮肤会用 mc-heads 渲染，正版和离线名都能看。</p>
+          </div>
+          <p class="hint-line">上传/还原需要先登录微软正版账号；皮肤 PNG 必须是 64×64（1.8+）或 64×32（旧版）。</p>
+        </div>
+      </div>
+      <div class="list" id="skin-list"></div>
+
+      <div class="section-head" style="margin-top:18px">
+        <h3>皮肤库（MineSkin 最近生成）</h3>
+        <button class="mini-btn" id="btn-skin-gallery">加载皮肤库</button>
+      </div>
+      <div class="skin-grid" id="skin-gallery">
+        <p class="hint-line">点「加载皮肤库」列出最近生成的皮肤，点任意一格把头像渲染到本地并打开所在文件夹。</p>
+      </div>
+    </section>
+
+    <!-- ========== 设置 ========== -->
+    <section class="view" id="view-settings">
+      <nav class="settings-index" aria-label="设置分类">
+        <span class="nav-group-title">设置分类</span>
+        <button type="button" class="tab" data-settings-jump="settings-interface">界面</button>
+        <button type="button" class="tab" data-settings-jump="settings-appearance">外观</button>
+        <button type="button" class="tab" data-settings-jump="settings-graphics">显卡</button>
+        <button type="button" class="tab" data-settings-jump="settings-language">游戏语言</button>
+        <button type="button" class="tab" data-settings-jump="settings-directories">数据目录</button>
+        <button type="button" class="tab" data-settings-jump="settings-game">游戏</button>
+        <button type="button" class="tab" data-settings-jump="settings-instance">当前版本</button>
+        <button type="button" class="tab" data-settings-jump="settings-java">Java</button>
+        <button type="button" class="tab" data-settings-jump="settings-network">下载</button>
+        <button type="button" class="tab" data-settings-jump="settings-window">窗口与参数</button>
+        <button type="button" class="tab" data-settings-jump="settings-account">账号</button>
+      </nav>
+      <div class="settings">
+
+        <div class="field-group" id="settings-interface">
+          <h3 data-i18n="group.interface">界面</h3>
+          <div class="field">
+            <label data-i18n="field.language">界面语言</label>
+            <select id="s-lang">
+              <option value="zh">简体中文</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-appearance">
+          <h3>外观</h3>
+          <div class="field">
+              <label>黑白主题</label>
+              <span class="row-inline"><button class="mini-btn" id="theme-light">白色</button><button class="mini-btn" id="theme-dark">黑色</button><span class="dim">也可以使用右上角的主题按钮切换。</span></span>
+          </div>
+          <div class="field">
+            <label>背景图</label>
+            <button class="mini-btn" id="bg-pick">选择图片…</button>
+            <button class="mini-btn" id="bg-clear">清除</button>
+            <span class="dim" id="bg-name">未设置（使用纯色背景）</span>
+          </div>
+          <div class="field">
+            <label>压暗程度</label>
+            <input type="range" id="bg-dim" min="0" max="0.8" step="0.05" value="0.35" />
+            <span class="dim" id="bg-dim-val">35%</span>
+          </div>
+          <div class="field">
+            <label>模糊</label>
+            <input type="range" id="bg-blur" min="0" max="16" step="1" value="0" />
+            <span class="dim" id="bg-blur-val">0 px</span>
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-graphics">
+          <h3>显卡</h3>
+          <div class="field">
+            <label>检测到的显卡</label>
+            <div class="row">
+              <span id="s-gpulist" class="hint-inline">读取中…</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>启动时用独显</label>
+            <div class="row">
+              <input type="checkbox" id="s-gpuhigh" />
+              <span class="hint-inline">给 java.exe 写一条 Windows「高性能 GPU」偏好（当前 Java）</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>当前状态</label>
+            <div class="row">
+              <b id="s-gpustate" class="mono">-</b>
+              <button class="mini-btn" id="btn-gpu-apply">立即应用</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-language">
+          <h3>游戏语言</h3>
+          <div class="field">
+            <label>进游戏使用</label>
+            <select id="s-gamelang">
+              <option value="zh_cn">简体中文</option>
+              <option value="zh_tw">繁體中文</option>
+              <option value="en_us">English (US)</option>
+              <option value="ja_jp">日本語</option>
+              <option value="ru_ru">Русский</option>
+              <option value="ko_kr">한국어</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>启动时写入</label>
+            <div class="row">
+              <input type="checkbox" id="s-forcelang" />
+              <span class="hint-inline">每次启动都按上面的语言改写 <code>options.txt</code></span>
+            </div>
+          </div>
+          <div class="field">
+            <label>当前版本已设置</label>
+            <div class="row">
+              <b id="s-curlang" class="mono">-</b>
+              <button class="mini-btn" id="btn-applylang">立即写入当前版本</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-directories">
+          <h3>数据目录</h3>
+          <div class="field">
+            <label>启动器数据</label>
+            <div class="row">
+              <input id="s-dataDir" readonly />
+              <button class="mini-btn" id="btn-open-data2">打开</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>游戏目录</label>
+            <div class="row">
+              <input id="s-gameDir2" readonly />
+              <button class="mini-btn" id="btn-open-game2">打开</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>配置迁移</label>
+            <div class="row">
+              <span class="hint-line" id="s-migrate-hint">换电脑时把设置、版本覆盖与服务器列表带过去。</span>
+              <button class="mini-btn" id="btn-export-config">导出配置</button>
+              <button class="mini-btn" id="btn-import-config">导入配置…</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>便携模式</label>
+            <div class="row">
+              <span class="hint-line" id="s-portable-state">读取中…</span>
+              <button class="mini-btn" id="btn-portable">切换</button>
+              <button class="mini-btn accent" id="btn-restart">重启启动器</button>
+            </div>
+          </div>
+          <p class="hint-line">便携模式会把配置/缓存放到启动器 exe 同级的 data 目录（U 盘随身带用）；切换后需要重启才生效。</p>
+        </div>
+
+        <div class="field-group" id="settings-game">
+          <h3>游戏</h3>
+          <div class="field">
+            <label>游戏目录</label>
+            <div class="row">
+              <input id="s-mcDir" readonly />
+              <button class="mini-btn" id="s-mcDir-open">打开</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>版本隔离</label>
+            <select id="s-isolation">
+              <option value="version">按版本隔离（推荐）</option>
+              <option value="global">不隔离（共用 .minecraft）</option>
+              <option value="custom">隔离到 versions/&lt;id&gt;/game</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>内存（MB）</label>
+            <div class="row">
+              <input type="number" id="s-memory" min="512" max="65536" step="512" />
+              <input type="range" id="s-memory-range" min="512" max="32768" step="512" />
+            </div>
+          </div>
+          <div class="field">
+            <label>启动前备份</label>
+            <label class="check"><input type="checkbox" id="s-autobackup" /> 启动前自动备份存档</label>
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-instance">
+          <h3>当前版本的独立设置 <em id="vs-name" class="vs-name">—</em></h3>
+          <div class="field">
+            <label>内存（MB）</label>
+            <div class="row">
+              <input type="number" id="vs-memory" min="0" max="65536" step="512" placeholder="跟随全局" />
+              <span class="dim">留空 = 用上面的全局值</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Java</label>
+            <select id="vs-java"><option value="">跟随全局（自动选择）</option></select>
+          </div>
+          <div class="field">
+            <label>窗口尺寸</label>
+            <div class="row">
+              <input type="number" id="vs-width" min="0" placeholder="宽" />
+              <input type="number" id="vs-height" min="0" placeholder="高" />
+              <span class="dim">留空 = 用全局</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>额外 JVM 参数</label>
+            <input id="vs-jvm" placeholder="追加到全局 JVM 参数后面，例如 -XX:+UseZGC" />
+          </div>
+          <div class="field">
+            <label>额外游戏参数</label>
+            <input id="vs-game" placeholder="例如 --server example.com --port 25565" />
+          </div>
+          <div class="field">
+            <label>窗口标题</label>
+            <input id="vs-title" placeholder="留空 = 游戏默认（Minecraft 1.20.1）" />
+          </div>
+          <div class="field">
+            <label>环境变量</label>
+            <textarea id="vs-env" rows="2" placeholder="每行一条 KEY=VALUE，例如 JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8"></textarea>
+          </div>
+          <div class="field">
+            <label>启动前命令</label>
+            <input id="vs-pre" placeholder="启动游戏前执行的命令，例如 taskkill /F /IM javaw.exe" />
+          </div>
+          <div class="field">
+            <label></label>
+            <div class="row">
+              <button class="primary-btn" id="btn-vs-save">保存该版本设置</button>
+              <button class="mini-btn" id="btn-vs-clear">清除覆盖</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-java">
+          <h3>Java</h3>
+          <div class="field">
+            <label>版本匹配</label>
+            <div class="row" id="java-fit" style="align-items:center;gap:8px">
+              <span class="dim" id="java-fit-text">检查中…</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>使用的 Java</label>
+            <select id="s-java"></select>
+            <div class="row" style="margin-top:8px;align-items:center">
+              <button class="mini-btn" id="s-java-pick" style="white-space:nowrap">手动指定 java.exe…</button>
+              <span class="hint-line" id="s-java-pick-hint" style="flex:1;min-width:0">自动扫描找不到时用这个，会校验能不能跑</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>自动下载</label>
+            <div class="row">
+              <select id="s-java-major">
+                <option value="8">Java 8（1.7–1.16）</option>
+                <option value="17">Java 17（1.17–1.20.4）</option>
+                <option value="21" selected>Java 21（1.20.5–1.21.x）</option>
+                <option value="25">Java 25（26.x）</option>
+              </select>
+              <button class="mini-btn" id="s-java-dl">下载并安装</button>
+              <button class="mini-btn" id="s-java-rescan">重新扫描</button>
+            </div>
+          </div>
+          <div class="java-block">
+            <div class="java-block-title">已扫描到的 Java</div>
+            <div class="java-list" id="java-list"><span class="hint-line">正在扫描…</span></div>
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-network">
+          <h3>下载</h3>
+          <div class="field">
+            <label>下载源</label>
+            <select id="s-mirror">
+              <option value="bmclapi">BMCLAPI 镜像（国内快）</option>
+              <option value="official">Mojang 官方</option>
+              <option value="auto">自动</option>
+              <option value="custom">自定义镜像</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>镜像地址</label>
+            <div class="row">
+              <input id="s-mirrorUrl" placeholder="https://bmclapi2.bangbang93.com（选「自定义镜像」时生效）" />
+              <button class="mini-btn" id="btn-net-apply">测试连通</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>HTTP 代理</label>
+            <div class="row">
+              <input id="s-proxy" placeholder="http://127.0.0.1:7890，留空直连" />
+              <span class="hint-line" id="s-net-state">-</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>并发线程</label>
+            <input type="number" id="s-threads" min="1" max="64" />
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-window">
+          <h3>窗口与参数</h3>
+          <div class="field">
+            <label>分辨率</label>
+            <div class="row">
+              <input type="number" id="s-width" placeholder="宽" />
+              <input type="number" id="s-height" placeholder="高" />
+              <label class="check"><input type="checkbox" id="s-fullscreen" /> 全屏</label>
+            </div>
+          </div>
+          <div class="field">
+            <label>额外 JVM 参数</label>
+            <input id="s-jvmArgs" placeholder="-XX:+UseG1GC …" />
+          </div>
+          <div class="field">
+            <label>额外游戏参数</label>
+            <input id="s-gameArgs" placeholder="--server …" />
+          </div>
+        </div>
+
+        <div class="field-group" id="settings-account">
+          <h3>账号</h3>
+          <div class="field">
+            <label>离线用户名</label>
+            <input id="s-account-name" placeholder="Steve" />
+          </div>
+          <div class="field">
+            <label>类型</label>
+            <select id="s-account-type">
+              <option value="offline">离线登录</option>
+              <option value="microsoft">微软账号（点右上角头像登录）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="primary-btn" id="btn-save">保存设置</button>
+          <span class="hint" id="save-hint"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 更多 ========== -->
+    <section class="view" id="view-more">
+      <div class="more-grid">
+        <div class="card more-card">
+          <div class="side-title">版本工具</div>
+          <p class="more-desc">对当前选中的版本做体检和修复，缺什么补什么。</p>
+          <div class="more-row">
+            <span class="more-key">当前版本</span>
+            <b id="more-ver">-</b>
+          </div>
+          <div class="more-row">
+            <span class="more-key">完整性</span>
+            <span id="more-state" class="more-state">-</span>
+          </div>
+          <div class="more-acts">
+            <button class="primary-btn" id="btn-more-repair">校验并修复</button>
+            <button class="mini-btn" id="btn-export-pack">导出整合包</button>
+            <button class="mini-btn" id="btn-more-openver">打开版本目录</button>
+            <button class="mini-btn" id="btn-more-delete">删除此版本</button>
+          </div>
+          <div class="hint-line" id="more-hint"></div>
+        </div>
+
+        <div class="card more-card">
+          <div class="side-title">清理</div>
+          <p class="more-desc">只删缓存和日志，不碰已安装的版本、库和存档。</p>
+          <div class="more-row"><span class="more-key">下载缓存</span><b id="st-cache">-</b></div>
+          <div class="more-row"><span class="more-key">启动器日志</span><b id="st-logs">-</b></div>
+          <div class="more-row"><span class="more-key">存档备份</span><b id="st-backups">-</b></div>
+          <div class="more-acts">
+            <button class="mini-btn" id="btn-clear-cache">清空下载缓存</button>
+            <button class="mini-btn" id="btn-clear-logs">清空日志文件</button>
+            <button class="mini-btn" id="btn-open-data">打开数据目录</button>
+          </div>
+        </div>
+
+        <div class="card more-card">
+          <div class="side-title">关于 TPCL</div>
+          <p class="more-desc">Minecraft 启动器版本与运行信息。</p>
+          <div class="more-row"><span class="more-key">版本</span><b id="more-appver">-</b></div>
+          <div class="more-row"><span class="more-key">运行方式</span><b id="more-runtime">-</b></div>
+          <div class="more-row"><span class="more-key">游戏目录</span><b class="mono ellip" id="more-gamedir">-</b></div>
+          <div class="more-row"><span class="more-key">数据目录</span><b class="mono ellip" id="more-datadir">-</b></div>
+          <div class="more-row"><span class="more-key">已运行</span><b id="more-uptime">-</b></div>
+          <div class="more-row"><span class="more-key">上次启动</span><b class="ellip" id="more-lastlaunch">-</b></div>
+          <div class="more-acts">
+            <button class="mini-btn" id="btn-open-game">打开游戏目录</button>
+            <button class="mini-btn" id="btn-open-logs">打开日志目录</button>
+            <button class="mini-btn" id="btn-open-crashes">崩溃报告</button>
+            <button class="mini-btn" id="btn-more-refresh">刷新信息</button>
+            <button class="mini-btn" id="btn-copy-launch">复制启动参数</button>
+          </div>
+        </div>
+
+        <div class="card more-card">
+          <div class="side-title">运行自检</div>
+          <p class="more-desc">一次跑完目录、版本、Java、磁盘、下载源，看看哪里会挡住启动。</p>
+          <div class="more-acts">
+            <button class="mini-btn accent" id="btn-selfcheck">开始自检</button>
+            <span class="more-key" id="sc-summary">还没跑过</span>
+          </div>
+          <div id="sc-list" class="sc-list"></div>
+        </div>
+
+        <div class="more-card">
+          <div class="side-title">启动器更新</div>
+          <p class="more-desc">从 GitHub 仓库的 release 检查新版本（不占用 API 配额）。</p>
+          <div class="more-acts">
+            <button class="mini-btn accent" id="btn-check-update">检查更新</button>
+            <span class="more-key" id="upd-summary">还没检查过</span>
+          </div>
+          <div class="more-row" id="upd-row" hidden>
+            <span class="more-key">最新版本</span>
+            <span class="mono" id="upd-latest">—</span>
+          </div>
+          <div class="more-acts" id="upd-acts" hidden>
+            <button class="mini-btn accent" id="btn-do-update" hidden data-mode="download">立即更新</button>
+            <button class="mini-btn" id="btn-dl-setup" hidden>下载安装包</button>
+            <button class="mini-btn" id="btn-open-release">打开下载页</button>
+          </div>
+          <div class="upd-bar" id="upd-bar" hidden>
+            <div class="upd-fill" id="upd-fill"></div>
+            <span class="upd-pct" id="upd-pct">0%</span>
+          </div>
+          <p class="upd-note" id="upd-dl-note" hidden></p>
+        </div>
+
+        <div class="card more-card">
+          <div class="side-title">更新日志</div>
+          <p class="more-desc">直接读 GitHub 上的 release 说明，不用开浏览器。</p>
+          <div class="more-acts">
+            <button class="mini-btn" id="btn-changelog">刷新</button>
+          </div>
+          <div id="changelog-list" class="changelog-list"><p class="hint-line">点「刷新」拉取。</p></div>
+        </div>
+
+        <div class="card more-card">
+          <div class="side-title">联机（免费隧道）</div>
+          <div class="hint-line">把本机游戏端口映射到公共中继 <code>bore.pub</code>，不用账号、不用买服务器。房主开房间，朋友在「多人游戏 → 直接连接」里填下面的地址。</div>
+          <div class="field">
+            <label>游戏端口</label>
+            <div class="row-inline">
+              <input class="input" id="np-port" type="number" min="1" max="65535" value="25565" />
+              <button class="mini-btn" id="btn-np-detect">检测端口</button>
+              <button class="mini-btn accent" id="btn-np-start">开房间</button>
+              <button class="mini-btn" id="btn-np-stop" hidden>关掉</button>
+            </div>
+          </div>
+          <div class="field" id="np-result-wrap" hidden>
+            <label>朋友连这个</label>
+            <div class="row-inline">
+              <input class="input" id="np-addr" readonly />
+              <button class="mini-btn" id="btn-np-copy">复制</button>
+            </div>
+          </div>
+          <div class="hint-line" id="np-status">未开启</div>
+        </div>
+
+        <div class="card more-card">
+          <div class="side-title">外部链接</div>
+          <p class="more-desc">遇到问题先看日志；日志面板在「启动」页底部。</p>
+          <div class="more-acts col">
+            <button class="mini-btn" id="btn-link-mcmod">MC 百科（物品/模组资料）</button>
+            <button class="mini-btn" id="btn-link-modrinth">Modrinth（模组/整合包）</button>
+            <button class="mini-btn" id="btn-link-fabric">Fabric Wiki</button>
+          </div>
+          <div class="hint-line">这些会在系统浏览器里打开。</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<!-- ========== 账号弹窗 ========== -->
+<div class="modal-mask" id="auth-mask" hidden>
+  <div class="modal" role="dialog" aria-label="账号">
+    <div class="modal-head">
+      <h3>账号</h3>
+      <button class="icon-btn" id="auth-close" title="关闭">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="acc-cur">
+        <span class="acc-avatar">👤</span>
+        <div class="acc-cur-txt">
+          <div class="acc-cur-name" id="auth-cur-name">Steve</div>
+          <div class="row-sub" id="auth-cur-type">离线登录</div>
+        </div>
+      </div>
+
+      <div class="auth-tabs" id="auth-tabs">
+        <button class="tab active" data-at="ms">微软登录</button>
+        <button class="tab" data-at="offline">离线登录</button>
+      </div>
+
+      <div class="auth-pane" id="ap-ms">
+        <p class="auth-note">用设备码登录，不需要输入密码。<br />点击后到浏览器里输码授权即可。</p>
+        <button class="primary-btn" id="btn-ms-start">获取登录码</button>
+        <div class="code-box" id="ms-code" hidden>
+          <div class="code-val" id="ms-user-code">----</div>
+          <div class="code-sub">
+            <a id="ms-url" href="https://microsoft.com/link" target="_blank" rel="noreferrer">microsoft.com/link</a>
+            <button class="tiny-btn" id="btn-ms-copy">复制</button>
+          </div>
+        </div>
+        <div class="ld-status" id="ms-status" hidden>
+          <div class="bar"><i id="ms-bar"></i></div>
+          <div class="row-sub" id="ms-text"></div>
+        </div>
+      </div>
+
+      <div class="auth-pane" id="ap-offline" hidden>
+        <div class="field">
+          <label>游戏昵称</label>
+          <div class="row"><input id="off-name" value="Steve" maxlength="16" placeholder="3-16 位字母数字下划线" /></div>
+        </div>
+        <button class="primary-btn" id="btn-off-save">使用这个昵称</button>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="ghost-btn" id="btn-logout">退出登录</button>
+      <span class="hint" id="auth-hint"></span>
+    </div>
+  </div>
+</div>
+<div class="modal-mask" id="shot-mask" hidden>
+  <div class="shot-view">
+    <div class="shot-view-bar">
+      <span id="shot-view-name">—</span>
+      <span class="spacer"></span>
+      <button class="mini-btn" id="shot-view-folder">在文件夹中显示</button>
+      <button class="mini-btn" id="shot-view-del">删除这张</button>
+      <button class="mini-btn" id="shot-view-close">关闭</button>
+    </div>
+    <img id="shot-view-img" alt="" />
+  </div>
+</div>
+
+<div class="modal-mask" id="crash-mask" hidden>
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <span>崩溃分析</span>
+      <button class="icon-btn" id="crash-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="crash-list"></div>
+      <div id="crash-detail" hidden>
+        <button class="mini-btn" id="crash-back">← 返回列表</button>
+        <h4 id="crash-title" class="crash-title"></h4>
+        <div class="crash-block">
+          <div class="crash-label">发生了什么</div>
+          <p id="crash-cause"></p>
+        </div>
+        <div class="crash-block">
+          <div class="crash-label">怎么修</div>
+          <ul id="crash-tips" class="crash-tips"></ul>
+        </div>
+        <div class="crash-block" id="crash-acts-wrap">
+          <div class="crash-label">一键修复</div>
+          <div class="crash-acts" id="crash-acts" hidden></div>
+          <div class="hint-inline">点一下直接改，改完回上一页重新启动就行。</div>
+        </div>
+        <div class="crash-block" id="crash-mods-wrap" hidden>
+          <div class="crash-label">崩溃时的模组（前 40 个）</div>
+          <div id="crash-mods" class="crash-mods"></div>
+        </div>
+        <div class="crash-block">
+          <div class="crash-label">原始摘要</div>
+          <pre id="crash-pre" class="crash-pre"></pre>
+        </div>
+        <button class="mini-btn" id="crash-raw">查看完整报告</button>
+        <pre id="crash-full" class="crash-pre" hidden></pre>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-mask" id="inst-mask" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <span>安装游戏版本</span>
+      <button class="icon-btn" id="inst-close" title="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="inst-target">
+        <span class="inst-ico" id="inst-ico">1.21</span>
+        <div>
+          <div class="inst-name" id="inst-name">1.21.1</div>
+          <div class="hint-line" id="inst-note">将下载客户端主文件、依赖库与资源文件。</div>
+        </div>
+      </div>
+      <label class="inst-opt">
+        <input type="checkbox" id="inst-skipassets" />
+        <span>跳过资源文件（声音与语言文件会缺失，不推荐）</span>
+      </label>
+      <div class="inst-acts">
+        <button class="primary-btn" id="inst-go">加入下载队列</button>
+        <button class="mini-btn" id="inst-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-mask" id="mkd-mask" hidden>
+  <div class="modal modal-wide" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <span id="mkd-title">项目详情</span>
+      <button class="icon-btn" id="mkd-close" title="关闭">✕</button>
+    </div>
+    <div class="modal-body" id="mkd-body">
+      <div class="empty">正在读取…</div>
+    </div>
+  </div>
+</div>
+<div class="modal-mask" id="cp-mask" hidden>
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>粘贴崩溃报告分析</h3>
+      <button class="icon-btn" id="cp-close" title="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="hint-line" style="margin:0 0 8px">把 crash-reports 里的内容、或启动器日志末尾那一段贴进来，会按同样的规则找原因。</p>
+      <textarea id="cp-text" class="picker" style="width:100%;height:180px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:12px" placeholder="---- Minecraft Crash Report ----&#10;…"></textarea>
+      <div id="cp-result" hidden>
+        <div class="mp-row"><span class="mp-k">结论</span><span class="mp-v" id="cp-title"></span></div>
+        <div class="mp-row"><span class="mp-k">怎么修</span><span class="mp-v" id="cp-cause"></span></div>
+        <div class="mp-row" id="cp-mods-wrap" hidden><span class="mp-k">可疑模组</span><span class="mp-v" id="cp-mods"></span></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="primary-btn" id="cp-go">分析</button>
+      <button class="mini-btn" id="cp-cancel">取消</button>
+      <span class="dim" id="cp-note"></span>
+    </div>
+  </div>
+</div>
+<div class="modal-mask" id="mp-mask" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h3>导入整合包</h3>
+      <button class="icon-btn" id="mp-close" title="关闭">✕</button>
+    </div>
+    <div class="modal-body" id="mp-info"></div>
+    <div class="modal-foot">
+      <button class="primary-btn" id="mp-go">加入导入队列</button>
+      <button class="mini-btn" id="mp-cancel">取消</button>
+      <span class="dim" id="mp-note">会新建一个独立版本，不动现有版本</span>
+    </div>
+  </div>
+</div>
+<div class="modal-mask" id="rn-mask" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h3>重命名版本</h3>
+      <button class="icon-btn" id="rn-close" title="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mp-row"><span class="mp-k">当前名称</span><span class="mp-v" id="rn-old"></span></div>
+      <div class="mp-row"><span class="mp-k">新名称</span><span class="mp-v"><input id="rn-input" class="inline-input" style="width:100%" /></span></div>
+      <div class="dim" style="margin-top:8px;font-size:12px">只改目录名与 json 里的 id，版本内容不动（支持中文）。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="primary-btn" id="rn-go">确定重命名</button>
+      <button class="mini-btn" id="rn-cancel">取消</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="/skin3d.js"></script>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>

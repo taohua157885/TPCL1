@@ -1,0 +1,13 @@
+.mp-drop { cursor:pointer; min-height:132px; justify-content:center; transition:background .15s,border-color .15s; }
+.mp-drop:focus-visible { outline:2px solid var(--accent,#6ca8ff); outline-offset:3px; }
+.mp-drop.dragging { transform:none; background:rgba(100,160,255,.14); border-style:solid; }
+.task-actions { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.task-actions:empty { display:none; }
+.task-actions a { text-decoration:none; }
+.task-row.cancelled { opacity:.65; }
+#error-report { position:fixed; bottom:20px; right:20px; z-index:10000; display:flex; gap:16px; align-items:center; padding:16px; border:1px solid #ad8142; border-radius:12px; background:#252831; color:#fff; box-shadow:0 8px 32px #0005; }
+#error-report a { color:#9ac5ff; }
+#error-report button { cursor:pointer; }
+#reports-dialog { width:min(580px,85vw); max-height:75vh; overflow:auto; padding:24px; border:1px solid #667; border-radius:14px; background:#252831; color:#fff; }
+#reports-dialog::backdrop { background:#0008; }
+#reports-dialog a { display:block; padding:12px 0; color:#9ac5ff; border-bottom:1px solid #ffffff20; }

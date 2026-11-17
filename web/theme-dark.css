@@ -1,0 +1,149 @@
+/* ============================================================================
+   1.3.0 — 深色主题（PCL2 同款布局，支持浅/深切换）
+   html[data-theme="dark"] 生效；浅色不受影响。
+   ========================================================================== */
+html[data-theme="dark"] {
+  --bg: #17191d;
+  --bg-soft: #1e2025;
+  --bg-raise: #24262b;
+  --panel: #1e2025;
+  --card: #24262b;
+  --card-2: #2a2d33;
+  --line: #33373e;
+  --line-soft: #2b2f35;
+  --text: #e8eaee;
+  --text-dim: #a8b0bb;
+  --text-mute: #7b838f;
+  --accent: #4a94ff;
+  --accent-2: #6aa8ff;
+  --accent-soft: #1e2c44;
+  --ok: #34c77b;
+  --warn: #f0a53a;
+  --err: #f2645a;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .45), 0 8px 20px rgba(0, 0, 0, .35);
+  --shadow-lift: 0 6px 14px rgba(0, 0, 0, .5), 0 14px 30px rgba(0, 0, 0, .4);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body { background: var(--bg) !important; }
+
+/* 左栏 / 顶栏 */
+html[data-theme="dark"] .rail { background: #1b1d22 !important; border-right-color: var(--line); }
+html[data-theme="dark"] .topbar { background: #1b1d22 !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .nav-btn:hover { background: #24272d !important; }
+html[data-theme="dark"] .nav-btn.active { background: var(--accent-soft) !important; color: #8fbaff !important; }
+html[data-theme="dark"] .pill,
+html[data-theme="dark"] .acc-chip { background: #24272d !important; border-color: var(--line) !important; color: var(--text-dim) !important; }
+html[data-theme="dark"] .pill:hover,
+html[data-theme="dark"] .acc-chip:hover { background: #2c3037 !important; color: var(--text) !important; }
+html[data-theme="dark"] .icon-btn:hover { background: #24272d !important; border-color: var(--line) !important; color: var(--text) !important; }
+
+/* 卡片与面板 */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .field-group,
+html[data-theme="dark"] .side-card,
+html[data-theme="dark"] .hero,
+html[data-theme="dark"] .log-panel {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] #version-cards .card { background: #24262b !important; border-color: var(--line) !important; }
+html[data-theme="dark"] #version-cards .card:hover { border-color: #414650 !important; }
+html[data-theme="dark"] #version-cards .card.selected {
+  background: #1e2c44 !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent) inset, 0 6px 16px rgba(74, 148, 255, .18) !important;
+}
+html[data-theme="dark"] #version-cards .card-actions .tiny-btn:hover { background: #2f333a !important; border-color: var(--line) !important; }
+
+/* 输入控件 */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: #1b1d22 !important;
+  border-color: var(--line) !important;
+  color: var(--text) !important;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color: #6b727c !important; }
+
+/* 按钮 */
+html[data-theme="dark"] .mini-btn,
+html[data-theme="dark"] .tiny-btn,
+html[data-theme="dark"] .ghost-btn {
+  background: #262a30 !important;
+  border-color: var(--line) !important;
+  color: var(--text-dim) !important;
+}
+html[data-theme="dark"] .mini-btn:hover,
+html[data-theme="dark"] .ghost-btn:hover { background: #2e333a !important; color: var(--text) !important; }
+html[data-theme="dark"] .mini-btn.accent { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+
+/* 标签 / 列表 / 分隔 */
+html[data-theme="dark"] .tag { background: #2b2f36 !important; border-color: var(--line) !important; color: var(--text-dim) !important; }
+html[data-theme="dark"] .list .row,
+html[data-theme="dark"] .content-row,
+html[data-theme="dark"] .world-row {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] .list .row:hover { background: #2a2d33 !important; }
+html[data-theme="dark"] .tabs { border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .tab { color: var(--text-dim) !important; }
+html[data-theme="dark"] .tab.active { color: var(--accent) !important; }
+html[data-theme="dark"] .section-title { color: var(--text-dim) !important; border-bottom-color: var(--line) !important; }
+
+/* 日志 / 弹层 / 菜单 */
+html[data-theme="dark"] .log,
+html[data-theme="dark"] .log-body { background: #14161a !important; color: #cfd4da !important; }
+html[data-theme="dark"] .ctx-menu,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .dlg {
+  background: #23262b !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .55) !important;
+}
+html[data-theme="dark"] .ctx-item { color: var(--text-dim) !important; }
+html[data-theme="dark"] .ctx-item:hover { background: #2e333a !important; color: var(--text) !important; }
+html[data-theme="dark"] .ctx-sep { background: var(--line) !important; }
+html[data-theme="dark"] .empty { color: var(--text-mute) !important; }
+html[data-theme="dark"] .hint-inline code,
+html[data-theme="dark"] code { background: #2a2e35 !important; color: #cfd4da !important; }
+
+/* 主题按钮改成可见，并显示当前模式 */
+#btn-theme { display: inline-flex !important; align-items: center; justify-content: center; }
+
+/* 侧栏小卡片里的按钮（切换账号等） */
+html[data-theme="dark"] .side-btn {
+  background: #262a30 !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
+}
+html[data-theme="dark"] .side-btn:hover { background: #2e333a !important; }
+html[data-theme="dark"] .content-cats { background: var(--card) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .content-cats .tab:hover { background: #2a2d33 !important; }
+html[data-theme="dark"] .content-grid > * { background: var(--card) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .empty-state { background: #1c1e23 !important; border-color: var(--line) !important; }
+
+/* 日志面板 */
+html[data-theme="dark"] .log-wrap {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] .log-head { background: #202329 !important; border-bottom-color: var(--line) !important; color: var(--text-dim) !important; }
+html[data-theme="dark"] .log { background: #131519 !important; color: #c3c9d2 !important; }
+html[data-theme="dark"] .log-filter button,
+html[data-theme="dark"] .log-tools .mini-btn { background: #262a30 !important; border-color: var(--line) !important; color: var(--text-dim) !important; }
+html[data-theme="dark"] .log-filter button.active { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
+html[data-theme="dark"] .log .lv-warn { color: #e7b563 !important; }
+html[data-theme="dark"] .log .lv-error, html[data-theme="dark"] .log .err { color: #ff8b81 !important; }
+
+/* 设置页里零散的原生按钮 */
+html[data-theme="dark"] .field button:not(.primary-btn):not(.accent) {
+  background: #262a30 !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text-dim) !important;
+}
+html[data-theme="dark"] .field button:not(.primary-btn):not(.accent):hover { background: #2e333a !important; color: var(--text) !important; }
+html[data-theme="dark"] .check-inline { color: var(--text-dim) !important; }

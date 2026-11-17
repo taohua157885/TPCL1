@@ -1,0 +1,78 @@
+{
+  "name": "tpcl",
+  "version": "1.25.0",
+  "private": true,
+  "description": "TPCL - 属于我自己的 Minecraft 启动器",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "author": "TPCL",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "start": "node src/main.js",
+    "dev": "node src/main.js --dev",
+    "app": "electron .",
+    "dist": "electron-builder --win",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "electron": "33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.tpcl.launcher",
+    "productName": "TPCL",
+    "copyright": "TPCL",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "web/**/*",
+      "package.json",
+      "README.md",
+      "!**/node_modules/**/*",
+      "!data/**/*",
+      "!dist/**/*"
+    ],
+    "asar": true,
+    "win": {
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "TPCL-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TPCL 启动器",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "TPCL-${version}-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "TPCL-${version}-portable.${ext}"
+    }
+  }
+}

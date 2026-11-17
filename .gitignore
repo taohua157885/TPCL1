@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/
+.minecraft/
+.env
+.env.*
+secrets.json
+*.log
+*.tmp
