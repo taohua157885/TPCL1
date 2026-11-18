@@ -1,6 +1,5 @@
 // Unified project browser. DOM text nodes keep provider content out of HTML.
 export function createCatalog({ api, enqueue, selected, context }) {
-  let sequence = 0, hits = [], total = 0;
   const $ = id => document.getElementById(id);
   const node = (tag, text, cls) => { const el = document.createElement(tag); if (text) el.textContent = text; if (cls) el.className = cls; return el; };
   const button = (text, fn) => { const el = node('button', text, 'mini-btn'); el.onclick = fn; return el; };
@@ -43,38 +42,111 @@ export function createCatalog({ api, enqueue, selected, context }) {
     await loadVersions();
   }
   function showMessage(text) { $('mk-list').replaceChildren(node('div', text, 'empty')); }
-  async function search(append = false) {
-    const seq = ++sequence, source = document.querySelector('#mk-src .active')?.dataset.mksrc || 'modrinth', kind = $('mk-type').value;
-    const query = $('mk-query').value.trim();
-    if (!append) { hits = []; showMessage('正在加载可下载目录…'); }
+  let current;
+
+  async function loadPage(run, page) {
+    const {kind, query, ctx, sort} = run;
+    const params = new URLSearchParams({
+      kind, type: kind, query, q: query, sort, limit: '24',
+      offset: String(page.offset), mc: ctx.mcVer || '', loader: kind === 'mod' ? ctx.loader || '' : '',
+    });
+    const endpoint = page.source === 'cf' ? '/api/cf/search?' : '/api/market/search?';
+    page.error = '';
     try {
-      const ctx = await scope(kind);
-      if (seq !== sequence) return;
-      const q = new URLSearchParams({ kind, type: kind, query, q: query, offset: String(append ? hits.length : 0), mc: ctx.mcVer || '', loader: kind === 'mod' ? ctx.loader || '' : '', sort: $('mk-sort').value, limit: '24' });
-      const data = await api((source === 'cf' ? '/api/cf/search?' : '/api/market/search?') + q);
-      if (seq !== sequence) return;
+      const data = await api(endpoint + params);
       if (data.error) throw new Error(data.error);
-      hits = append ? [...hits, ...(data.hits || [])] : data.hits || []; total = data.total || 0;
-      const box = $('mk-list'); box.replaceChildren();
-      $('mk-scope').textContent = `${source === 'cf' ? 'CurseForge' : 'Modrinth'} · ${total.toLocaleString()} 个项目`;
-      if (!hits.length) { showMessage('暂无匹配项目，请调整关键词或关闭“匹配当前游戏”。'); return; }
-      for (const item of hits) {
-        const row = node('article', '', 'catalog-card');
-        const icon = node('div', '▦', 'catalog-icon');
-        if (item.icon && /^https:\/\//.test(item.icon)) { const img = document.createElement('img'); img.src = item.icon; img.alt = ''; img.loading = 'eager'; img.onerror = () => { img.remove(); icon.textContent = '▦'; }; icon.replaceChildren(img); }
-        const info = node('div', '', 'catalog-info'); info.append(node('h3', item.title), node('p', item.description || '暂无简介'), node('small', `${item.author || source} · ${Number(item.downloads || 0).toLocaleString()} 次下载`));
-        row.append(icon, info, button('选择版本', () => versions(item, source, kind))); box.append(row);
-      }
-      if (hits.length < total) box.append(button(`加载更多 · 已显示 ${hits.length}`, () => search(true)));
+      const batch = data.hits || [];
+      page.items.push(...batch);
+      page.offset += batch.length;
+      page.more = batch.length > 0 && page.offset < data.total && (page.source !== 'cf' || page.offset <= 9900);
     } catch (error) {
-      if (seq !== sequence) return;
-      showMessage(error.message);
-      $('mk-list').append(button('重试', () => search()), button('切换到 Modrinth', () => { document.querySelector('[data-mksrc="modrinth"]').click(); }));
+      page.error = error.message;
+    }
+    if (current === run) render(run);
+  }
+
+  async function search(append = false) {
+    if (append && (!current || current.loading)) return;
+    if (!append) {
+      current = {
+        kind: $('mk-type').value, query: $('mk-query').value.trim(), sort: $('mk-sort').value,
+        pages: [], loading: false,
+      };
+      showMessage('正在加载可下载目录…');
+      $('mk-scope').textContent = '';
+    }
+    const run = current;
+    run.loading = true;
+    try {
+      if (!append) {
+        const [ctx, status] = await Promise.all([scope(run.kind), api('/api/catalog/sources').catch(() => ({}))]);
+        if (current !== run) return;
+        run.ctx = ctx;
+        const sources = status.curseforge?.configured ? ['modrinth', 'cf'] : ['modrinth'];
+        run.pages = sources.map(source => ({source, offset: 0, more: true, items: [], error: ''}));
+      }
+      await Promise.all(run.pages.filter(page => page.more).map(page => loadPage(run, page)));
+    } catch (error) {
+      if (current === run) {
+        showMessage(error.message);
+        $('mk-list').append(button('重试', () => search()));
+      }
+    } finally {
+      run.loading = false;
+      if (current === run && run.pages.length) render(run);
+    }
+  }
+
+  function projectCard(item, source, kind) {
+    const row = node('article', '', 'catalog-card');
+    const icon = node('div', '▦', 'catalog-icon');
+    if (item.icon && /^https:\/\//.test(item.icon)) {
+      const img = document.createElement('img');
+      img.src = item.icon;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.onerror = () => { icon.textContent = '▦'; };
+      icon.replaceChildren(img);
+    }
+    const info = node('div', '', 'catalog-info');
+    const details = [item.author, Number(item.downloads || 0).toLocaleString() + ' 次下载'];
+    info.append(node('h3', item.title), node('p', item.description || '暂无简介'), node('small', details.filter(Boolean).join(' · ')));
+    row.append(icon, info, button('选择版本', () => versions(item, source, kind)));
+    return row;
+  }
+
+  function render(run) {
+    const box = $('mk-list');
+    box.replaceChildren();
+    const entries = [];
+    const seen = new Set();
+    const length = Math.max(0, ...run.pages.map(page => page.items.length));
+    for (let i = 0; i < length; i++) {
+      for (const {source, items} of run.pages) {
+        const item = items[i];
+        if (!item) continue;
+        const key = source + ':' + item.id;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        entries.push({source, item});
+      }
+    }
+    if (run.sort === 'downloads') entries.sort((a, b) => b.item.downloads - a.item.downloads);
+    $('mk-scope').textContent = '已显示 ' + entries.length + ' 个项目';
+    const failures = run.pages.filter(page => page.error);
+    if (!entries.length) {
+      const empty = failures.length === run.pages.length ? '目录加载失败' : '暂无匹配项目';
+      showMessage(run.loading ? '正在加载可下载目录…' : empty);
+    }
+    for (const {item, source} of entries) box.append(projectCard(item, source, run.kind));
+    if (failures.length) box.append(node('p', failures.map(page => page.error).join(' · '), 'hint-line'));
+    if (!run.loading && run.pages.some(page => page.more)) {
+      box.append(button(failures.length ? '重试并继续加载' : '加载更多', () => search(true)));
     }
   }
   async function configure() {
     const d = document.createElement('dialog'); d.className = 'catalog-dialog';
-    d.append(node('h2', '下载源设置'), node('p', 'Modrinth 可直接使用。CurseForge 需要有效的官方 API Key；密钥仅保存在本机。'));
+    d.append(node('h2', '目录设置'), node('p', 'Modrinth 可直接使用。CurseForge 需要有效的官方 API Key；密钥仅保存在本机。'));
     const status = await api('/api/catalog/sources'); d.append(node('p', status.curseforge?.configured ? 'CurseForge：已配置' : 'CurseForge：尚未配置'));
     const input = document.createElement('input'); input.type = 'password'; input.placeholder = '输入 CurseForge API Key'; input.autocomplete = 'off'; input.setAttribute('aria-label', 'CurseForge API Key');
     const msg = node('p');

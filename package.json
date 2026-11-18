@@ -1,6 +1,6 @@
 {
   "name": "tpcl",
-  "version": "1.25.0",
+  "version": "1.25.1",
   "private": true,
   "description": "TPCL - 属于我自己的 Minecraft 启动器",
   "type": "module",
@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "electron": "33.2.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "zip-stream": "4.1.1"
   },
   "build": {
     "appId": "com.tpcl.launcher",
@@ -37,7 +38,9 @@
       "README.md",
       "!**/node_modules/**/*",
       "!data/**/*",
-      "!dist/**/*"
+      "!dist/**/*",
+      "build/icon.png",
+      "build/icon.ico"
     ],
     "asar": true,
     "win": {

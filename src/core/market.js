@@ -3,9 +3,8 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
-import { DATA_DIR, loadConfig } from './config.js';
+import { DATA_DIR, loadConfig, gameDirFor } from './config.js';
 import { ensureDir, downloadFile } from './download.js';
-import { versionDir } from './version.js';
 import { modContext, resourceContext, compatible, planDependencies } from './mod-dependencies.js';
 import { importModpack } from './modpack.js';
 
@@ -211,7 +210,7 @@ export async function installProjectVersion({ projectId, versionId, target, type
     const file = pickFile(ver);
     if (!file) throw new Error('版本中没有可下载文件');
     const sub = subDirFor(type), filename = path.basename(file.filename);
-    await downloadFile([file.url], path.join(versionDir(target), sub, filename), { sha1: file.sha1, size: file.size, retries: 2, idleMs: 25000 });
+    await downloadFile([file.url], path.join(gameDirFor(target), sub, filename), { sha1: file.sha1, size: file.size, retries: 2, idleMs: 25000 });
     return [{ projectId, filename, dir: sub, version: ver.versionNumber }];
   }
   const ctx = modContext(target);
@@ -242,7 +241,7 @@ export async function installProjectVersion({ projectId, versionId, target, type
     const f = item.file;
     onProgress({ stage: 'download', percent: 5 + Math.floor(index / plan.length * 94), text: '下载模组及前置（' + (index + 1) + '/' + plan.length + '）：' + f.filename });
     try {
-      await downloadFile([f.url], path.join(versionDir(target), 'mods', f.filename), { sha1: f.sha1, size: f.size, retries: 2, idleMs: 25000 });
+      await downloadFile([f.url], path.join(gameDirFor(target), 'mods', f.filename), { sha1: f.sha1, size: f.size, retries: 2, idleMs: 25000 });
     } catch (cause) { throw new Error('模组或必需前置下载失败：' + item.name + '：' + cause.message, { cause }); }
     installed.push({ projectId: item.projectId, filename: f.filename, dir: 'mods', version: item.version });
   }

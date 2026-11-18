@@ -1,18 +1,17 @@
+import { wrapperPrefix, contentDirs, plainVersion, gameLayers, localModCount } from './pack-layout.js';
 // 整合包导入：Modrinth (.mrpack) / CurseForge 导出包 / 直接打包的 .minecraft
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import os from 'node:os';
 import { loadConfig, gameDirFor } from './config.js';
-import { ensureDir, downloadFile, sha1File } from './download.js';
+import { ensureDir, downloadFile } from './download.js';
 import { versionDir, versionJsonPath } from './version.js';
 import { installVersion } from './installer.js';
 import { installLoader } from './loaders.js';
 import { listEntries, readText as zipReadMember, extract as zipExtract } from './ziptool.js';
 
 const TAR = 'C:/Windows/System32/tar.exe';
-const CACHE = path.join(loadConfig().mcDir, '..', '..', '..');
 
 function run(exe, args) {
   return new Promise((resolve) => {
@@ -40,68 +39,31 @@ async function zipReadText(file, member) {
   }
 }
 
-/** 把 src 目录里的内容递归合并进 dest（同名文件覆盖） */
-async function mergeInto(src, dest) {
-  let ents;
-  try {
-    ents = await fsp.readdir(src, { withFileTypes: true });
-  } catch {
-    return;
+async function unpackGameRoot(file, entries, prefix, dest) {
+  const layers = gameLayers(entries, prefix);
+  for (const layer of layers) {
+    await zipExtract(file, dest, {
+      prefix: layer,
+      filter: (entry, rel) => !layers.some(other => other.length > layer.length && entry.name.toLowerCase().startsWith(other.toLowerCase()))
+        && !rel.split('/').some(segment => segment.toLowerCase() === '__macosx'),
+    });
   }
-  for (const ent of ents) {
-    const from = path.join(src, ent.name);
-    const to = path.join(dest, ent.name);
-    if (ent.isDirectory()) {
-      await ensureDir(to);
-      await mergeInto(from, to);
-    } else {
-      await ensureDir(path.dirname(to));
-      await fsp.rm(to, { force: true }).catch(() => {});
-      await fsp.copyFile(from, to);
-    }
-  }
+}
+
+function plainLayers(entries, versionJson) {
+  const layers = gameLayers(entries);
+  if (versionJson) layers.push(...gameLayers(entries, versionJson.slice(0, versionJson.lastIndexOf('/') + 1)));
+  return layers;
 }
 
 /**
- * 解压包内某个目录。
- * member 为 '.' 或空 = 整个包解到 destDir；
- * 否则把 member 目录的**内容**铺到 destDir 根部（overrides/config → config），
- * 因为 tar 会把 member 本身也建出来，直接解会多一层。
+ * 去掉包裹前缀，让后续逻辑按包根目录处理。
  */
-async function zipExtractDir(file, member, destDir) {
-  await ensureDir(destDir);
-  const whole = !member || member === '.' || member === './';
-  const prefix = whole ? '' : String(member).replace(/\\/g, '/').replace(/\/+$/, '') + '/';
-  await zipExtract(file, destDir, { prefix });
-  return true;
-}
-
-/**
- * 有些整合包被包了一层目录（zip 里只有一个顶层文件夹）。
- * 返回包裹前缀（带结尾斜杠）或空串。
- */
-function wrapperPrefix(entries) {
-  const CONTENT_DIRS = ['mods', 'config', 'resourcepacks', 'shaderpacks', 'defaultconfigs', 'tacz', 'schematics', 'scripts', 'kubejs'];
-  const marker = (p) => entries.some((e) => e === p + 'modrinth.index.json' || e === p + 'manifest.json' || e === p + 'tpcl-export.json'
-    || e.startsWith(p + 'versions/')
-    || e.startsWith(p + 'PCL/')
-    || CONTENT_DIRS.some((d) => e === p + d + '/' || e.startsWith(p + d + '/')));
-  if (marker('')) return '';
-  const tops = new Set();
-  for (const e of entries) {
-    const i = e.indexOf('/');
-    if (i > 0) tops.add(e.slice(0, i));
-  }
-  if (tops.size !== 1) return '';
-  const p = [...tops][0] + '/';
-  return marker(p) ? p : '';
-}
-
-/** 去掉包裹前缀，让后续逻辑按「包根目录」处理 */
 function stripPrefix(entries, prefix) {
   if (!prefix) return entries;
   return entries
-    .map((e) => (e === prefix ? '' : e.startsWith(prefix) ? e.slice(prefix.length) : e))
+    .filter(e => e.startsWith(prefix))
+    .map(e => e.slice(prefix.length))
     .filter(Boolean);
 }
 
@@ -123,7 +85,16 @@ function guessFromName(base) {
 }
 
 function safeId(name) {
-  return String(name || 'pack').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 60);
+  return String(name || 'pack').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 60).replace(/\.+$/, '') || 'pack';
+}
+
+function plainTarget(file, baseId) {
+  const stem = safeId(path.basename(file, path.extname(file)));
+  let id = stem;
+  for (let n = 2; id.toLowerCase() === baseId?.toLowerCase() || fs.existsSync(versionDir(id)); n++) {
+    id = stem + '-' + n;
+  }
+  return id;
 }
 
 async function writeProxyVersion(id, inheritsFrom) {
@@ -181,18 +152,19 @@ export async function inspectModpack(file) {
   if (!raw.length) throw new Error('无法读取压缩包内容');
   const prefix = wrapperPrefix(raw);
   const entries = stripPrefix(raw, prefix);
-  const has = (name) => entries.some((e) => e === name || e === name + '/' || e.startsWith(name + '/'));
+  const has = (name) => entries.some((e) => e.toLowerCase() === name.toLowerCase() || e.toLowerCase().startsWith(name.toLowerCase() + '/'));
 
   if (has('modrinth.index.json')) {
-    const idx = JSON.parse(await zipReadText(f, 'modrinth.index.json'));
+    const idx = JSON.parse(await zipReadText(f, prefix + 'modrinth.index.json'));
     const mc = idx.dependencies?.minecraft ?? null;
-    const loader = idx.dependencies['fabric-loader'] ? 'fabric'
-      : idx.dependencies.neoforge ? 'neoforge'
-        : idx.dependencies.forge ? 'forge' : null;
-    const loaderVersion = loader ? idx.dependencies[loader === 'fabric' ? 'fabric-loader' : loader] : null;
+    const loader = idx.dependencies?.['fabric-loader'] ? 'fabric'
+      : idx.dependencies?.neoforge ? 'neoforge'
+        : idx.dependencies?.forge ? 'forge' : null;
+    const loaderVersion = loader ? idx.dependencies?.[loader === 'fabric' ? 'fabric-loader' : loader] : null;
     const files = (idx.files ?? []).filter((x) => x.env?.client !== 'unsupported');
     return {
       format: 'modrinth',
+      localMods: localModCount(entries, ['', ...gameLayers(entries, 'overrides/'), ...gameLayers(entries, 'client-overrides/')]),
       name: idx.name ?? path.basename(f),
       versionId: idx.versionId ?? '',
       mc, loader, loaderVersion,
@@ -205,10 +177,11 @@ export async function inspectModpack(file) {
 
   // ---------- TPCL 自己导出的包（根目录直接是 mods/ config/ …） ----------
   if (has('tpcl-export.json')) {
-    const mk = JSON.parse(await zipReadText(f, 'tpcl-export.json'));
+    const mk = JSON.parse(await zipReadText(f, prefix + 'tpcl-export.json'));
     const dirs = Array.isArray(mk.entries) ? mk.entries : [];
     return {
       format: 'tpcl',
+      localMods: localModCount(entries, gameLayers(entries)),
       name: mk.name ?? path.basename(f),
       versionId: mk.name ?? '',
       mc: mk.mc ?? null,
@@ -222,7 +195,7 @@ export async function inspectModpack(file) {
   }
 
   if (has('manifest.json')) {
-    const man = JSON.parse(await zipReadText(f, 'manifest.json'));
+    const man = JSON.parse(await zipReadText(f, prefix + 'manifest.json'));
     const mc = man.minecraft?.version ?? null;
     const ml = (man.minecraft?.modLoaders ?? []).find((x) => x.primary) ?? man.minecraft?.modLoaders?.[0];
     let loader = null; let loaderVersion = null;
@@ -243,13 +216,14 @@ export async function inspectModpack(file) {
     }
     return {
       format: 'curseforge',
+      localMods: localModCount(entries, ['', ...gameLayers(entries, (man.overrides || 'overrides') + '/')]),
       name: man.name ?? path.basename(f),
       version: man.version ?? '',
       mc, loader, loaderVersion,
       fileCount: (man.files ?? []).length,
       totalSize,
       sizeKnown: totalSize != null && totalSize > 0,
-      overrides: has('overrides') ? ['overrides'] : [],
+      overrides: has(man.overrides || 'overrides') ? [man.overrides || 'overrides'] : [],
       targetId: `${safeId(man.name ?? 'pack')}-${mc ?? 'unknown'}`,
     };
   }
@@ -266,11 +240,10 @@ export async function inspectModpack(file) {
   } catch { /* 读不到就忽略 */ }
 
   // 裸目录包：找 versions/<id>/<id>.json 反推继承的原版
-  const vjson = entries.find((e) => /^versions\/[^/]+\/[^/]+\.json$/.test(e));
+  const vjson = plainVersion(entries);
   if (!vjson) {
     // 没有清单也没有 versions/：常见于「直接把 .minecraft 里的文件夹打包」的整合包
-    const contentDirs = ['mods', 'config', 'resourcepacks', 'shaderpacks', 'defaultconfigs', 'tacz', 'schematics'];
-    const hitDirs = contentDirs.filter((d) => entries.some((e) => e === d + '/' || e.startsWith(d + '/')));
+    const hitDirs = contentDirs.filter(has);
     if (!hitDirs.length) {
       const sample = entries.filter((e) => e && !e.endsWith('/')).slice(0, 6).join('、');
       throw new Error(`这不是可识别的整合包（没有 modrinth.index.json / manifest.json / versions，也找不到 mods、config 等目录）。`
@@ -283,6 +256,7 @@ export async function inspectModpack(file) {
     }
     return {
       format: pclSetup ? 'pcl' : 'content',
+      localMods: localModCount(entries, plainLayers(entries)),
       name: guess.name || path.basename(f, path.extname(f)),
       version: pclSetup?.version || '',
       mc: guess.mc,
@@ -291,24 +265,25 @@ export async function inspectModpack(file) {
       fileCount: entries.filter((e) => /\.jar$/i.test(e)).length,
       totalSize: null,
       overrides: hitDirs,
-      targetId: safeId(guess.name || path.basename(f, path.extname(f))) + (guess.mc ? '-' + guess.mc : ''),
+      targetId: plainTarget(f, loadConfig().selectedVersion),
     };
   }
   const innerId = vjson.split('/')[1];
   let mc = null;
   try {
-    const j = JSON.parse(await zipReadText(f, vjson));
+    const j = JSON.parse(await zipReadText(f, prefix + vjson));
     mc = j.inheritsFrom ?? j.id ?? innerId;
   } catch { mc = innerId; }
   return {
     format: 'plain',
+    localMods: localModCount(entries, plainLayers(entries, vjson)),
     name: path.basename(f, path.extname(f)),
     version: '',
     mc, loader: null, loaderVersion: null,
     fileCount: null,
     totalSize: null,
     overrides: [],
-    targetId: safeId(innerId),
+    targetId: plainTarget(f, innerId),
   };
 }
 
@@ -322,22 +297,22 @@ export async function importModpack(file, onProgress = () => {}) {
   const entries = stripPrefix(raw, prefix);
 
   // 有的打包工具不写目录条目，只有 overrides/config/x 这种文件条目，所以要按前缀判断
-  const has = (name) => entries.some((e) => e === name || e === name + '/' || e.startsWith(name + '/'));
+  const has = (name) => entries.some((e) => e.toLowerCase() === name.toLowerCase() || e.toLowerCase().startsWith(name.toLowerCase() + '/'));
 
   // ---------- Modrinth ----------
   if (has('modrinth.index.json')) {
     onProgress({ stage: 'read', percent: 2, text: '读取 Modrinth 整合包…' });
-    const idx = JSON.parse(await zipReadText(f, 'modrinth.index.json'));
+    const idx = JSON.parse(await zipReadText(f, prefix + 'modrinth.index.json'));
     const mc = idx.dependencies?.minecraft;
     if (!mc) throw new Error('整合包没有声明 Minecraft 版本');
-    const loaderKind = idx.dependencies['fabric-loader']
+    const loaderKind = idx.dependencies?.['fabric-loader']
       ? 'fabric'
-      : idx.dependencies.neoforge
+      : idx.dependencies?.neoforge
         ? 'neoforge'
-        : idx.dependencies.forge
+        : idx.dependencies?.forge
           ? 'forge'
           : null;
-    const loaderVer = loaderKind ? idx.dependencies[loaderKind === 'fabric' ? 'fabric-loader' : loaderKind] : null;
+    const loaderVer = loaderKind ? idx.dependencies?.[loaderKind === 'fabric' ? 'fabric-loader' : loaderKind] : null;
 
     let baseId = mc;
     if (loaderKind) {
@@ -356,20 +331,21 @@ export async function importModpack(file, onProgress = () => {}) {
     onProgress({ stage: 'files', percent: 5, text: `下载 ${files.length} 个文件…` });
     const failed = await fetchFiles(packId, files, onProgress, '文件');
 
+    if (has('mods')) await zipExtract(f, gameDirFor(packId), { prefix, filter: (_, rel) => /^mods\//i.test(rel) });
     for (const dir of ['overrides', 'client-overrides']) {
       if (has(dir)) {
         onProgress({ stage: 'overrides', percent: 95, text: `解压 ${dir}…` });
-        await zipExtractDir(f, prefix + dir, gameDirFor(packId));
+        await unpackGameRoot(f, raw, prefix + dir + '/', gameDirFor(packId));
       }
     }
-    onProgress({ stage: 'done', percent: 100, text: `整合包已导入：${packId}`, id: packId });
-    return { ok: true, id: packId, name: idx.name, mc, loader: loaderKind, version: loaderVer, failed };
+    if (!failed.length) onProgress({ stage: 'done', percent: 100, text: `整合包已导入：${packId}`, id: packId });
+    return { ok: !failed.length, id: packId, name: idx.name, mc, loader: loaderKind, version: loaderVer, failed };
   }
 
   // ---------- TPCL 自己导出的包 ----------
   if (has('tpcl-export.json')) {
     onProgress({ stage: 'read', percent: 2, text: '读取 TPCL 导出包…' });
-    const mk = JSON.parse(await zipReadText(f, 'tpcl-export.json'));
+    const mk = JSON.parse(await zipReadText(f, prefix + 'tpcl-export.json'));
     const mc = mk.mc;
     if (!mc) throw new Error('导出包没有声明 Minecraft 版本');
     const loaderKind = mk.loader && mk.loader !== 'vanilla' && mk.loaderVersion ? mk.loader : null;
@@ -386,7 +362,7 @@ export async function importModpack(file, onProgress = () => {}) {
     await ensureDir(gameDir);
     onProgress({ stage: 'files', percent: 60, text: '解压文件…' });
     // 整包解到游戏目录（根目录就是 mods/config/…），再删掉 marker，避免污染 mods 扫描
-    await zipExtractDir(f, prefix ? prefix.replace(/\/$/, '') : '.', gameDir);
+    await unpackGameRoot(f, raw, prefix, gameDir);
     await fsp.rm(path.join(gameDir, 'tpcl-export.json'), { force: true });
     const failed = [];
     onProgress({ stage: 'done', percent: 100, text: `整合包已导入：${packId}`, id: packId });
@@ -396,7 +372,7 @@ export async function importModpack(file, onProgress = () => {}) {
   // ---------- CurseForge ----------
   if (has('manifest.json')) {
     onProgress({ stage: 'read', percent: 2, text: '读取 CurseForge 整合包…' });
-    const man = JSON.parse(await zipReadText(f, 'manifest.json'));
+    const man = JSON.parse(await zipReadText(f, prefix + 'manifest.json'));
     const mc = man.minecraft?.version;
     if (!mc) throw new Error('manifest.json 没有声明 Minecraft 版本');
     const ml = (man.minecraft?.modLoaders ?? []).find((x) => x.primary) ?? man.minecraft?.modLoaders?.[0];
@@ -436,29 +412,20 @@ export async function importModpack(file, onProgress = () => {}) {
     const failed = await fetchFiles(packId, files, onProgress, '文件');
 
     const ov = man.overrides || 'overrides';
-    if (has(ov + '/')) {
+    if (has('mods')) await zipExtract(f, gameDirFor(packId), { prefix, filter: (_, rel) => /^mods\//i.test(rel) });
+    if (has(ov)) {
       onProgress({ stage: 'overrides', percent: 95, text: '解压 overrides…' });
-      await zipExtractDir(f, ov, gameDirFor(packId));
+      await unpackGameRoot(f, raw, prefix + ov + '/', gameDirFor(packId));
     }
-    onProgress({ stage: 'done', percent: 100, text: `整合包已导入：${packId}`, id: packId });
+    if (!failed.length && !skipped.length) onProgress({ stage: 'done', percent: 100, text: `整合包已导入：${packId}`, id: packId });
     return { ok: !failed.length && !skipped.length, id: packId, name: man.name, mc, loader: loaderKind, version: loaderVer, failed: [...failed, ...skipped], skipped,
       error: skipped.length ? `${skipped.length} 个必需模组无法取得下载地址，请检查下载源配置或作者的下载许可` : undefined };
   }
 
   // ---------- 裸目录包 ----------
   onProgress({ stage: 'read', percent: 2, text: '未发现清单，按目录包导入…' });
-  const packId = safeId(path.basename(f, path.extname(f)));
-  const vd = versionDir(packId);
-  await ensureDir(vd);
-  const gameDir = gameDirFor(packId);
-  await ensureDir(gameDir);
-  const hasVersions = entries.some((e) => e.startsWith('versions/') && e.endsWith('.json'));
-  let baseMc = null;
-  if (hasVersions) {
-    const guess = entries.find((e) => /^versions\/[^/]+\/[^/]+\.json$/.test(e));
-    if (guess) baseMc = guess.split('/')[1];
-  }
-  let contentOnly = false;
+  const vjson = plainVersion(entries);
+  let baseMc = vjson?.split('/')[1];
   if (!baseMc) {
     // 纯内容包（只有 mods/config/…）：按文件名猜版本，猜不到就跟随当前选中版本
     const guess = guessFromName(path.basename(f, path.extname(f)));
@@ -470,30 +437,31 @@ export async function importModpack(file, onProgress = () => {}) {
     } else {
       const cfg = loadConfig();
       if (!cfg.selectedVersion) throw new Error('这个包没有清单，文件名里也读不出游戏版本；请先选一个已安装的版本再导入');
-      const selJson = JSON.parse(await fsp.readFile(versionJsonPath(cfg.selectedVersion), 'utf8'));
-      baseMc = selJson.inheritsFrom || selJson.id || cfg.selectedVersion;
+      await fsp.access(versionJsonPath(cfg.selectedVersion));
+      baseMc = cfg.selectedVersion;
       onProgress({ stage: 'read', percent: 5, text: `按当前版本判定：继承 ${baseMc}` });
     }
-    contentOnly = true;
+  }
+  const packId = plainTarget(f, baseMc);
+  const gameDir = gameDirFor(packId);
+  onProgress({ stage: 'files', percent: 20, text: '解压整合包内容…' });
+  if (!vjson) {
+    await unpackGameRoot(f, raw, prefix, gameDir);
+  } else {
+    const mcDir = loadConfig().mcDir;
+    // Restore shared version metadata and resources, preserving already installed files.
+    await zipExtract(f, mcDir, {
+      prefix,
+      filter: (_, rel) => /^(assets|libraries)\//i.test(rel) || /^versions\/([^/]+)\/\1\.(json|jar)$/i.test(rel),
+      keepExisting: true,
+    });
+    const isContent = (_, rel) => contentDirs.includes(rel.split('/')[0].toLowerCase())
+      || ['options.txt', 'servers.dat'].includes(rel.toLowerCase());
+    for (const root of plainLayers(entries, vjson)) {
+      await zipExtract(f, gameDir, { prefix: prefix + root, filter: isContent });
+    }
   }
   await writeProxyVersion(packId, baseMc);
-  onProgress({ stage: 'files', percent: 20, text: '解压整个包…' });
-  if (contentOnly) {
-    // 内容包根目录就是 mods/config/…，直接铺到游戏目录
-    await zipExtractDir(f, '', gameDir);
-  } else {
-    await zipExtractDir(f, '.', vd);
-  }
-  // 裸包的 mods/resourcepacks 若在包根目录，挪到游戏目录里（隔离模式在 game/ 下）
-  for (const d of ['mods', 'resourcepacks', 'shaderpacks', 'config', 'datapacks']) {
-    const src = path.join(vd, d);
-    if (!fs.existsSync(src)) continue;
-    const dst = path.join(gameDir, d);
-    if (path.resolve(src) === path.resolve(dst)) continue;
-    await ensureDir(dst);
-    await mergeInto(src, dst);
-    await fsp.rm(src, { recursive: true, force: true });
-  }
   onProgress({ stage: 'done', percent: 100, text: `整合包已导入：${packId}`, id: packId });
   return { ok: true, id: packId, name: packId, mc: baseMc, failed: [] };
 }

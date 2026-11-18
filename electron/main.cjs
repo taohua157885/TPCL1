@@ -1,6 +1,6 @@
 // Electron 主进程：内嵌 HTTP 服务 + 原生窗口 + 托盘 + 单实例
 // 注意：项目是 type:module，所以主进程用 .cjs 后缀
-const { app, BrowserWindow, Tray, Menu, shell, dialog, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, shell, dialog, nativeImage, ipcMain } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
@@ -147,6 +147,17 @@ async function startServer() {
   });
 }
 
+function titleBarColors(dark) {
+  return dark ? { color: '#191b1e', symbolColor: '#f0f1f3' }
+    : { color: '#ffffff', symbolColor: '#202226' };
+}
+
+ipcMain.on('tpcl:titlebar-theme', (event, dark) => {
+  if (process.platform === 'win32' && win && event.sender === win.webContents && typeof dark === 'boolean') {
+    win.setTitleBarOverlay(titleBarColors(dark));
+  }
+});
+
 function createWindow() {
   dbg('createWindow begin');
   const st = loadWindowState();
@@ -162,6 +173,10 @@ function createWindow() {
     title: 'TPCL · 我的 Minecraft 启动器',
     icon: iconPath(),
     autoHideMenuBar: true,
+    ...(process.platform === 'win32' && {
+      titleBarStyle: 'hidden',
+      titleBarOverlay: { ...titleBarColors(false), height: 53 },
+    }),
     webPreferences: {
       preload: require('path').join(__dirname, 'preload.cjs'),
       contextIsolation: true,

@@ -85,7 +85,7 @@ async function loadChangelog(force) {
 
 function showView(name) {
   state.view = name;
-  $('.nav-btn[data-view]').forEach(button => {
+  $$('.nav-btn[data-view]').forEach(button => {
     const active = button.dataset.view === name;
     button.classList.toggle('active', active);
     if (active) button.setAttribute('aria-current', 'page');
@@ -616,7 +616,7 @@ function baseMcOf(id) {
   return id;
 }
 
-function showDlTab(name) {
+function showDlTab(name, kind = 'mod') {
   state.dlTab = name;
   const onlinePack = name === 'packs';
   $('#catalog-title').textContent = onlinePack ? '整合包目录' : '模组与资源';
@@ -644,7 +644,7 @@ function showDlTab(name) {
     loadLoaderVersions();
   }
   if (name === 'vanilla' && !state.remote) loadRemote();
-  if (name === 'market' || onlinePack) { $('#mk-type').value = onlinePack ? 'modpack' : 'mod'; catalog.search(); }
+  if (name === 'market' || onlinePack) { $('#mk-query').value = ''; $('#mk-type').value = onlinePack ? 'modpack' : kind; catalog.search(); }
 }
 
 /* ---------------- OptiFine ---------------- */
@@ -835,7 +835,7 @@ async function pickModpackFile() {
   }
 }
 
-const FMT_NAME = { tpcl: 'TPCL 导出包', pcl: 'PCL2 整合包', modrinth: 'Modrinth 整合包', curseforge: 'CurseForge 整合包', plain: '裸目录整合包' };
+const FMT_NAME = { tpcl: 'TPCL 导出包', pcl: 'PCL2 整合包', modrinth: 'Modrinth 整合包', curseforge: 'CurseForge 整合包', plain: '裸目录整合包', content: '内容整合包' };
 
 /** 导入前解析：看清会装什么、多大，再确认 */
 async function askModpack(file) {
@@ -862,7 +862,8 @@ async function askModpack(file) {
       ['打包名称', d.name + (d.version ? ' · ' + d.version : '')],
       ['Minecraft', d.mc ?? '—'],
       ['加载器', d.loader ? `${d.loader} ${d.loaderVersion ?? ''}`.trim() : '原版'],
-      ['要下载的模组/文件', d.fileCount == null ? '整包解压' : `${d.fileCount} 个`],
+      ['随包附带模组', d.localMods == null ? '—' : d.localMods + ' 个'],
+      ...(d.format === 'modrinth' || d.format === 'curseforge' ? [['清单文件', (d.fileCount || 0) + ' 个']] : []),
       ['下载体积', size],
       ['覆盖文件', d.overrides?.length ? d.overrides.join('、') : '无'],
       ['将创建的版本', d.targetId ?? '—'],
@@ -2016,9 +2017,9 @@ async function refresh() {
 }
 
 /* ---------------- 事件绑定 ---------------- */
-function bind() {
+function bindNavigation() {
   const settingsPage = $('#view-settings');
-  const settingsLinks = $('.settings-index [data-settings-jump]');
+  const settingsLinks = $$('.settings-index [data-settings-jump]');
   function highlightSettings() {
     if (!settingsPage.classList.contains('active')) return;
     const top = settingsPage.getBoundingClientRect().top + 32;
@@ -2038,10 +2039,14 @@ function bind() {
     highlightSettings();
   }));
   settingsPage.addEventListener('scroll', highlightSettings, {passive: true});
-  settingsLinks[0].classList.add('active');
-  settingsLinks[0].setAttribute('aria-current', 'location');
-  $('.nav-btn[data-view]').forEach((b) => b.addEventListener('click', () => showView(b.dataset.view)));
+  settingsLinks[0]?.classList.add('active');
+  settingsLinks[0]?.setAttribute('aria-current', 'location');
+  $$('.nav-btn[data-view]').forEach((b) => b.addEventListener('click', () => showView(b.dataset.view)));
 
+}
+
+function bind() {
+  bindNavigation();
   $('#btn-launch').addEventListener('click', doLaunch);
   $('#btn-stop').addEventListener('click', doStop);
   $('#task-list')?.addEventListener('click', async e => {
@@ -2298,12 +2303,15 @@ function bind() {
   $('#btn-mk-go').addEventListener('click', searchMarket);
   $('#mk-sort')?.addEventListener('change', () => searchMarket());
   $('#mk-query').addEventListener('keydown', (e) => { if (e.key === 'Enter') searchMarket(); });
-  $('#mk-type').addEventListener('change', () => catalog.search());
-  $$('#mk-src .chip').forEach(c => c.addEventListener('click', () => {
-    $$('#mk-src .chip').forEach(x => x.classList.toggle('active', x === c));
-    state.mkSrc = c.dataset.mksrc;
+  $('#mk-type').addEventListener('change', () => {
+    const kind = $('#mk-type').value;
+    if (kind === 'modpack') return showDlTab('packs');
+    if (state.dlTab === 'packs') {
+      showDlTab('market', kind);
+      return;
+    }
     catalog.search();
-  }));
+  });
   $('#catalog-match').addEventListener('change', () => catalog.search());
   $('#catalog-configure').addEventListener('click', () => catalog.configure().catch(e => toast(e.message, true)));
 

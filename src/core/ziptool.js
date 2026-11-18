@@ -65,8 +65,10 @@ class ZipReader {
     let cdSize = tail.readUInt32LE(idx + 12);
     let cdOffset = tail.readUInt32LE(idx + 16);
     if (count === 0xffff || cdSize === 0xffffffff || cdOffset === 0xffffffff) {
-      // zip64：EOCD64 位置在 EOCD 之后 20 字节的 8 字节偏移里
-      const locOff = Number(tail.readBigUInt64LE(idx + 8));
+      // The ZIP64 locator occupies the 20 bytes immediately before the EOCD.
+      const locator = await this.read(this.size - tailLen + idx - 20, 20);
+      if (locator.readUInt32LE(0) !== 0x07064b50) throw new Error('zip64 定位记录损坏');
+      const locOff = Number(locator.readBigUInt64LE(8));
       const rec = await this.read(locOff, 56);
       if (rec.readUInt32LE(0) !== SIG_EOCD64) throw new Error('zip64 记录损坏');
       count = Number(rec.readBigUInt64LE(32));
@@ -191,16 +193,20 @@ export async function extract(file, destRoot, opts = {}) {
       if (entry.dir) continue;
       let rel = entry.name;
       if (opts.prefix) {
-        if (!rel.startsWith(opts.prefix)) continue;
+        if (!rel.toLowerCase().startsWith(opts.prefix.toLowerCase())) continue;
         rel = rel.slice(opts.prefix.length);
       }
       if (!rel || rel.endsWith('/')) continue;
       if (opts.filter && !opts.filter(entry, rel)) continue;
       const to = path.join(destRoot, rel);
-      if (!to.startsWith(path.resolve(destRoot))) continue; // 防目录穿越
+      if (!path.resolve(to).startsWith(path.resolve(destRoot) + path.sep)) throw Error('压缩包成员超出目标目录'); // 防目录穿越
       await fs.promises.mkdir(path.dirname(to), { recursive: true });
       const buf = await z.readEntryData(entry);
-      await fs.promises.writeFile(to, buf);
+      try {
+        await fs.promises.writeFile(to, buf, { flag: opts.keepExisting ? 'wx' : 'w' });
+      } catch (error) {
+        if (!opts.keepExisting || error.code !== 'EEXIST') throw error;
+      }
       n += 1;
       if (opts.onFile && n % 50 === 0) opts.onFile(n, entry.name);
     }

@@ -10,7 +10,7 @@ test('mod installation resolves compatible required dependencies before download
   process.env.TPCL_DATA_DIR = dir;
   const original = globalThis.fetch;
   t.after(() => { globalThis.fetch = original; fs.rmSync(dir, { recursive: true, force: true }); });
-  const { saveConfig } = await import('../src/core/config.js');
+  const { saveConfig, gameDirFor } = await import('../src/core/config.js');
   saveConfig({ mcDir: path.join(dir, 'minecraft') });
   const { versionDir } = await import('../src/core/version.js');
   const { installProjectVersion, versionContext } = await import('../src/core/market.js');
@@ -51,6 +51,7 @@ test('mod installation resolves compatible required dependencies before download
     }
   });
   await t.test('Modrinth follows deep chains, version-only pins and cycles, deduplicates and reuses verified files', async () => {
+    saveConfig({ isolation: 'custom' });
     const target = makeTarget('deep');
     mockMr({ a:mrVersion('A','a',[dep('B'),dep('C'),dep('unused',null,'optional'),dep('embedded',null,'embedded')]),
       b:mrVersion('B','b',[dep('D')]), c:mrVersion('C','c',[dep('D')]),
@@ -59,6 +60,7 @@ test('mod installation resolves compatible required dependencies before download
     const progress = [];
     const result = await installProjectVersion({projectId:'A',versionId:'a',target,onProgress:p=>progress.push(p)});
     assert.equal(result.length,5);
+    assert.ok(fs.existsSync(path.join(gameDirFor(target), 'mods', 'a.jar')));
     assert.deepEqual(downloads,['e','d','b','c','a']);
     const query = requests.find(u=>u.pathname==='/v2/project/B/version').searchParams;
     assert.equal(query.get('game_versions'),'["1.20.1"]');
@@ -88,7 +90,7 @@ test('mod installation resolves compatible required dependencies before download
       mockMr(fixture);
       await assert.rejects(installProjectVersion({projectId:'A',versionId:'a',target}), /前置|依赖|冲突/);
       assert.equal(downloads.length,0);
-      assert.equal(fs.existsSync(path.join(versionDir(target),'mods','a.jar')),false);
+      assert.equal(fs.existsSync(path.join(gameDirFor(target),'mods','a.jar')),false);
     }
     mockMr({a:mrVersion('A','a')});
     await assert.rejects(installProjectVersion({projectId:'A',versionId:'deleted',target}));
@@ -132,7 +134,7 @@ test('mod installation resolves compatible required dependencies before download
     const progress=[];
     await assert.rejects(installProjectVersion({projectId:'A',versionId:'a',target,onProgress:p=>progress.push(p)}), /必需前置下载失败/);
     assert.equal(progress.some(p=>p.percent===100),false);
-    assert.equal(fs.existsSync(path.join(versionDir(target),'mods','a.jar')),false);
+    assert.equal(fs.existsSync(path.join(gameDirFor(target),'mods','a.jar')),false);
   });
   await t.test('file collisions and unsafe filenames are rejected during planning', async () => {
     for(const filename of ['../escape.jar','x.jar']) {

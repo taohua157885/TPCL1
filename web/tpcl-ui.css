@@ -174,3 +174,14 @@ html body .main :is(.mini-btn,.side-btn,.ghost-btn,.chip,.tab) { line-height: 20
 .main .more-desc,.main .skin-sub { color: var(--text-dim); line-height: 19px; }
 .main .skin-file,.main .more-row .ellip { min-width: 0; }
 .main .skin-acts button,.main .more-acts button { line-height: 20px; }
+
+html.tpcl-desktop-frame body .rail {
+  -webkit-app-region: drag;
+  padding-right: calc(100% - env(titlebar-area-width, calc(100% - 144px)) + 12px)!important;
+  grid-template-columns: minmax(85px, 1fr) auto minmax(42px, 1fr);
+}
+.tpcl-desktop-frame .rail button { -webkit-app-region: no-drag; }
+@media (max-width: 1170px) {
+  html.tpcl-desktop-frame body .rail .nav-btn { padding-inline: 8px!important; }
+  .tpcl-desktop-frame .rail .nav-btn svg { display: none; }
+}

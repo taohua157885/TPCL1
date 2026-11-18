@@ -268,10 +268,8 @@
       </div>
 
       <div id="dl-market" hidden>
-        <div class="catalog-heading"><div><h2 id="catalog-title">模组与资源</h2></div><button class="mini-btn" id="catalog-configure">下载源设置</button></div><div class="chips" id="mk-src">
-          <button class="chip active" data-mksrc="modrinth">Modrinth</button>
-          <button class="chip" data-mksrc="cf">CurseForge</button>
-        </div>        <div class="toolbar">
+        <div class="catalog-heading"><div><h2 id="catalog-title">模组与资源</h2></div><button class="mini-btn" id="catalog-configure">目录设置</button></div>
+        <div class="toolbar">
           <select id="mk-type" class="picker">
             <option value="mod">模组</option>
             <option value="resourcepack">资源包</option>
@@ -279,7 +277,7 @@
             <option value="modpack">整合包</option>
           </select>
           <input class="search" id="mk-query" placeholder="搜索名称，例如 sodium / iris / jei…" />
-          <label class="catalog-match"><input type="checkbox" id="catalog-match" checked />匹配当前游戏</label><span class="dim" id="mk-scope">—</span>
+          <label class="catalog-match"><input type="checkbox" id="catalog-match" />匹配当前游戏</label><span class="dim" id="mk-scope">—</span>
           <span class="spacer"></span>
           <select id="mk-sort" class="picker" title="排序方式">
             <option value="relevance">相关度</option>
@@ -296,7 +294,7 @@
         </div>
         <div class="list" id="mk-list"></div>
         <div class="hint" id="mk-hint">
-          <span id="mk-hint-scope">资源来自 Modrinth 公开接口，按当前选中版本的 Minecraft 版本与加载器过滤。</span>
+          <span id="mk-hint-scope">浏览全部项目，或勾选「匹配当前游戏」筛选兼容版本。</span>
           模组装进当前版本的 mods，资源包装进 resourcepacks，光影装进 shaderpacks，整合包会新建独立版本。
         </div>
       </div>

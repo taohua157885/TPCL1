@@ -1,8 +1,7 @@
 // CurseForge 官方目录、文件下载及必需前置安装；密钥保存在本机 secrets.json。
 import fs from 'node:fs';
 import path from 'node:path';
-import { DATA_DIR, loadConfig } from './config.js';
-import { versionDir } from './version.js';
+import { DATA_DIR, loadConfig, gameDirFor } from './config.js';
 import { modContext, resourceContext, compatible, planDependencies } from './mod-dependencies.js';
 import { ensureDir, downloadFile } from './download.js';
 
@@ -25,7 +24,7 @@ export function saveApiKey(key) {
 export async function searchCatalog({ kind = 'mod', query = '', offset = 0, mc = '', loader = '', sort = 'downloads' } = {}) {
   const classes = { mod: 6, modpack: 4471, resourcepack: 12, shader: 6552 };
   if (!classes[kind]) throw new Error('不支持的资源类型');
-  const q = new URLSearchParams({ gameId: '432', classId: String(classes[kind]), searchFilter: query, pageSize: '24', index: String(Math.max(0, Math.min(9900, Number(offset) || 0))), sortField: String(({downloads:6, relevance:1, newest:11, updated:3, follows:2})[sort] || 6), sortOrder: 'desc' });
+  const q = new URLSearchParams({ gameId: '432', classId: String(classes[kind]), searchFilter: query, pageSize: String(Math.min(24, 10000 - Math.max(0, Math.min(9999, Number(offset) || 0)))), index: String(Math.max(0, Math.min(9999, Number(offset) || 0))), sortField: String(({downloads:6, relevance:1, newest:11, updated:3, follows:2})[sort] || 6), sortOrder: 'desc' });
   if (mc) q.set('gameVersion', mc);
   if (loaderType(loader)) q.set('modLoaderType', String(loaderType(loader)));
   const data = await cfGet('/mods/search?' + q);
@@ -179,7 +178,7 @@ export async function installCfFile({ modId, fileId, target, classId = CLASS_ID.
       const f = item.file;
       onProgress({ stage: 'download', percent: 5 + Math.floor(index / plan.length * 94), text: '下载模组及前置（' + (index + 1) + '/' + plan.length + '）：' + f.filename });
       try {
-        await downloadFile([f.url], path.join(versionDir(target), 'mods', f.filename), { size: f.size, sha1: f.sha1, retries: 2, connectTimeoutMs: 20000, idleMs: 30000 });
+        await downloadFile([f.url], path.join(gameDirFor(target), 'mods', f.filename), { size: f.size, sha1: f.sha1, retries: 2, connectTimeoutMs: 20000, idleMs: 30000 });
       } catch (cause) { throw new Error('模组或必需前置下载失败：' + item.name + '：' + cause.message, { cause }); }
       installed.push({ projectId: item.projectId, fileId: item.versionId, filename: f.filename });
     }
@@ -191,7 +190,7 @@ export async function installCfFile({ modId, fileId, target, classId = CLASS_ID.
   if (!url) url = await downloadUrlOf(modId, fileId);
   if (!url) throw new Error('这个文件作者关闭了第三方下载');
   const sub = subDirForClass(classId);
-  const dir = classId === CLASS_ID.modpack ? path.join(DATA_DIR, 'cache', 'cf-packs', String(modId), String(fileId)) : path.join(versionDir(target), sub);
+  const dir = classId === CLASS_ID.modpack ? path.join(DATA_DIR, 'cache', 'cf-packs', String(modId), String(fileId)) : path.join(gameDirFor(target), sub);
   await ensureDir(dir);
   const name = path.basename(f?.fileName || `${modId}-${fileId}.jar`);
   const dest = path.join(dir, name);
